@@ -1,0 +1,59 @@
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "net.kyori.blossom" version "1.3.1"
+}
+
+apply from: "$rootDir/dependencies.gradle"
+
+group 'tv.quaint'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+
+    // Maven
+    maven { url 'https://mvnrepository.com/artifact' }
+
+    // OpenCollab
+    maven { url 'https://repo.opencollab.dev/maven-snapshots/' }
+    maven { url 'https://repo.opencollab.dev/maven-releases/'}
+
+    // JitPack
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    implementation(IMPLEMENT)
+    shadow(SHADOW)
+    compileOnly(ONLY_COMPILE)
+    annotationProcessor(ANNOTATIONS)
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+
+blossom {
+
+}
+
+jar.enabled = false
+shadowJar {
+    String finalName = "${rootProject.name}-${project.version}.jar"
+
+    destinationDirectory = file("${rootDir}/build/libs")
+    archiveClassifier.set('')
+
+    archiveFileName = finalName;
+}
+
+artifacts {
+    archives shadowJar
+}
