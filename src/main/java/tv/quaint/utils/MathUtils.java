@@ -75,12 +75,12 @@ public class MathUtils {
     public static int getStringCount(String toCount, String on) {
         int count = 0;
 
-        String temp;
-        do {
-            temp = on;
-            on = on.replaceFirst(MatcherUtils.makeLiteral(toCount), "");
-            if (! temp.equals(on)) count ++;
-        } while (! temp.equals(on));
+        String temp = on;
+        String regexMatch = MatcherUtils.makeLiteral(toCount);
+        while (temp.contains(toCount)) {
+            temp = temp.replaceFirst(regexMatch, "");
+            count ++;
+        }
 
         return count;
     }
