@@ -7,7 +7,7 @@ plugins {
 
 apply from: "$rootDir/dependencies.gradle"
 
-group 'tv.quaint'
+group 'com.github.Server-Utilities'
 version '0.0.2'
 
 repositories {
@@ -57,20 +57,20 @@ artifacts {
 }
 
 publishing {
-//    publications {
-//        mavenJava(MavenPublication) {
-//            from components.java
-//        }
-//    }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Server-Utilities/TheBase")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
+    publications {
+        maven(MavenPublication) {
+            from components.java
         }
     }
+
+//    repositories {
+//        maven {
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/Server-Utilities/TheBase")
+//            credentials {
+//                username = System.getenv("GITHUB_ACTOR")
+//                password = System.getenv("GITHUB_TOKEN")
+//            }
+//        }
+//    }
 }
