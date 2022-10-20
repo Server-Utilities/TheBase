@@ -43,7 +43,9 @@ bin/
 
 ### JB IDEA ###
 /.idea/
+/.idea/workspace.xml
 .idea/
+.idea/workspace.xml
 
 ### PUBLISH ###
 publish.gradle
