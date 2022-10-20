@@ -45,12 +45,7 @@ blossom {
 
 jar.enabled = false
 shadowJar {
-    String finalName = "${rootProject.name}-${project.version}.jar"
-
-    destinationDirectory = file("${rootDir}/build/libs")
     archiveClassifier.set('')
-
-    archiveFileName = finalName;
 }
 
 artifacts {
