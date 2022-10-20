@@ -4,45 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="50eb88c7-8c1b-4ee8-a31a-785636677cb0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jpa-buddy.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dependencies.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/BaseEventHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/BaseEventListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/BaseListenerLayout.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/RegisteredListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/components/BaseEvent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/components/FunctionedCall.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/processing/BaseEventExecutor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/processing/BaseEventPriority.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/processing/BaseProcessor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/events/processing/exception/BaseEventException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/objects/AtomicString.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/objects/DatedNumber.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/objects/Eventable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/objects/SingleSet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/StorageUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/FlatFileResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/StorageResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/databases/MongoResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/databases/MySQLResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/databases/configurations/DatabaseConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/databases/processing/MongoConnection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/databases/processing/MySQLConnection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/storage/resources/databases/processing/SQLCollection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/utils/MatcherUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/tv/quaint/utils/MathUtils.java" afterDir="false" />
+    <list default="true" id="50eb88c7-8c1b-4ee8-a31a-785636677cb0" name="Changes" comment="Quick Add.">
+      <change afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,8 +43,12 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "last_opened_file_path": "C:/Users/nitra/Dropbox/Snapshots/TheBase/src/main/java/tv/quaint/events"
+    "last_opened_file_path": "C:/Users/nitra/Dropbox/Snapshots/TheBase/src/main/java/tv/quaint/events",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -124,6 +93,28 @@
       <option name="presentableId" value="Default" />
       <updated>1666220606952</updated>
     </task>
+    <task id="LOCAL-00001" summary="Init">
+      <created>1666223731753</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1666223731753</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Quick Add.">
+      <created>1666223764094</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1666223764094</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Quick Add.">
+      <created>1666223848444</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1666223848444</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -136,5 +127,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Init" />
+    <MESSAGE value="Quick Add." />
+    <option name="LAST_COMMIT_MESSAGE" value="Quick Add." />
   </component>
 </project>
