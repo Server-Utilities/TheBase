@@ -33,13 +33,9 @@ dependencies {
     annotationProcessor(ANNOTATIONS)
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
-}
-
 blossom {
-
+    replaceToken '{{version}}', rootProject.version, 'src/main/java/tv/quaint/TheBase.java'
+    replaceToken '{{version}}', rootProject.version, 'tv/quaint/TheBase.java'
 }
 
 jar.enabled = false
