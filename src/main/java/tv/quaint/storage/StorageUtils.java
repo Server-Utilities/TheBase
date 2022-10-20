@@ -5,13 +5,18 @@ import de.leonhard.storage.Json;
 import de.leonhard.storage.Toml;
 import de.leonhard.storage.Yaml;
 import de.leonhard.storage.internal.FlatFile;
+import lombok.Getter;
 import org.bson.Document;
+import tv.quaint.objects.handling.IEventable;
+import tv.quaint.objects.handling.derived.IModifierEventable;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 
 public class StorageUtils {
+    @Getter
+    private static final File environmentFolder = new File(System.getProperty("user.dir"));
 
     public enum StorageType {
         YAML,
@@ -25,6 +30,13 @@ public class StorageUtils {
         MONGO,
         MYSQL,
         ;
+    }
+
+    public static File initializeModifierEventableFolder(IModifierEventable eventable) {
+        File parentDir = getEnvironmentFolder();
+        if (eventable.isMod()) parentDir = new File(getEnvironmentFolder(), "mods" + File.separator);
+        if (eventable.isMod()) parentDir = new File(getEnvironmentFolder(), "plugins" + File.separator);
+        return new File(parentDir, eventable.getIdentifier() + File.separator);
     }
 
     public static boolean copy(File updateFile, File file) {

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import tv.quaint.events.components.BaseEvent;
 import tv.quaint.events.components.FunctionedCall;
-import tv.quaint.objects.Eventable;
+import tv.quaint.objects.handling.IEventable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -43,14 +43,14 @@ public class BaseEventHandler {
         getRegularEvents().put(aClass, listeners);
     }
 
-    public static void bake(BaseEventListener listener, Eventable eventable) {
+    public static void bake(BaseEventListener listener, IEventable eventable) {
         BaseListenerLayout listenerLayout = new BaseListenerLayout(listener);
         listenerLayout.setUp(eventable).forEach((aClass, registeredListeners) -> {
             put(aClass, registeredListeners.toArray(new RegisteredListener<?>[0]));
         });
     }
 
-    public static <T extends Eventable> void unbake(T eventable) {
+    public static <T extends IEventable> void unbake(T eventable) {
         getRegularEvents().forEach((aClass, registeredListeners) -> {
             registeredListeners.forEach(registeredListener -> {
                 if (registeredListener.getEventable().equals(eventable)) getRegularEvents().get(aClass).remove(registeredListener);

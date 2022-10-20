@@ -7,12 +7,12 @@ import tv.quaint.events.components.BaseEvent;
 import tv.quaint.events.processing.BaseEventPriority;
 import tv.quaint.events.processing.exception.BaseEventException;
 import tv.quaint.events.processing.BaseEventExecutor;
-import tv.quaint.objects.Eventable;
+import tv.quaint.objects.handling.IEventable;
 
 /**
  * Stores relevant information for plugin listeners
  */
-public class RegisteredListener<T extends Eventable> implements Comparable<RegisteredListener<T>> {
+public class RegisteredListener<T extends IEventable> implements Comparable<RegisteredListener<T>> {
     @Getter @Setter
     private static int masterIndex = 0;
 

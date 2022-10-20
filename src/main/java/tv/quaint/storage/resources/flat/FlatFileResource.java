@@ -1,7 +1,10 @@
-package tv.quaint.storage.resources;
+package tv.quaint.storage.resources.flat;
 
 import de.leonhard.storage.*;
 import de.leonhard.storage.internal.FlatFile;
+import lombok.Getter;
+import lombok.Setter;
+import tv.quaint.storage.resources.StorageResource;
 
 import java.io.File;
 import java.io.InputStream;
@@ -11,19 +14,22 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
-    public T resource;
-    public Class<T> resourceType;
-    public String name;
-    public File parentDirectory;
-    public File file;
-    public boolean selfContained;
+    @Getter @Setter
+    T resource;
+    @Getter
+    final String fileName;
+    @Getter
+    final File parentDirectory;
+    @Getter
+    final File selfFile;
+    @Getter
+    final boolean selfContained;
 
     public FlatFileResource(Class<T> resourceType, String fileName, File parentDirectory, boolean selfContained) {
         super(resourceType, "name", fileName);
-        this.resourceType = resourceType;
-        this.name = fileName;
+        this.fileName = fileName;
         this.parentDirectory = parentDirectory;
-        this.file = new File(parentDirectory, fileName);
+        this.selfFile = new File(parentDirectory, fileName);
         this.selfContained = selfContained;
 
         reloadResource();
@@ -31,9 +37,9 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
 
     public T load(boolean selfContained) {
         if (selfContained) {
-            return loadConfigFromSelf(this.file, this.name);
+            return loadConfigFromSelf(this.selfFile, this.fileName);
         } else {
-            return loadConfigNoDefault(this.file);
+            return loadConfigNoDefault(this.selfFile);
         }
     }
 
@@ -83,7 +89,7 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
     }
 
     public boolean exists() {
-        return this.file.exists();
+        return this.selfFile.exists();
     }
 
     public boolean empty() {
@@ -92,7 +98,7 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
 
     public TreeMap<Integer, String> lines() {
         try {
-            Scanner reader = new Scanner(this.file);
+            Scanner reader = new Scanner(this.selfFile);
 
             TreeMap<Integer, String> lines = new TreeMap<>();
             while (reader.hasNext()) {
@@ -125,16 +131,16 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
             }
         }
 
-        if (this.resourceType.equals(Config.class)) {
+        if (getResourceType().equals(Config.class)) {
             return (T) SimplixBuilder.fromFile(file).createConfig();
         }
-        if (this.resourceType.equals(Yaml.class)) {
+        if (getResourceType().equals(Yaml.class)) {
             return (T) SimplixBuilder.fromFile(file).createYaml();
         }
-        if (this.resourceType.equals(Json.class)) {
+        if (getResourceType().equals(Json.class)) {
             return (T) SimplixBuilder.fromFile(file).createJson();
         }
-        if (this.resourceType.equals(Toml.class)) {
+        if (getResourceType().equals(Toml.class)) {
             return (T) SimplixBuilder.fromFile(file).createToml();
         }
         return null;
@@ -150,16 +156,16 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
             }
         }
 
-        if (this.resourceType.equals(Config.class)) {
+        if (getResourceType().equals(Config.class)) {
             return (T) SimplixBuilder.fromFile(file).createConfig();
         }
-        if (this.resourceType.equals(Yaml.class)) {
+        if (getResourceType().equals(Yaml.class)) {
             return (T) SimplixBuilder.fromFile(file).createYaml();
         }
-        if (this.resourceType.equals(Json.class)) {
+        if (getResourceType().equals(Json.class)) {
             return (T) SimplixBuilder.fromFile(file).createJson();
         }
-        if (this.resourceType.equals(Toml.class)) {
+        if (getResourceType().equals(Toml.class)) {
             return (T) SimplixBuilder.fromFile(file).createToml();
         }
         return null;
@@ -167,7 +173,7 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
 
     @Override
     public void delete() {
-        this.file.delete();
+        this.selfFile.delete();
     }
 
     @Override

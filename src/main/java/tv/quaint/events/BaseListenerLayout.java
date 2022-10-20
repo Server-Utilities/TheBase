@@ -6,7 +6,7 @@ import tv.quaint.events.components.BaseEvent;
 import tv.quaint.events.processing.BaseProcessor;
 import tv.quaint.events.processing.exception.BaseEventException;
 import tv.quaint.events.processing.BaseEventExecutor;
-import tv.quaint.objects.Eventable;
+import tv.quaint.objects.handling.IEventable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -54,7 +54,7 @@ public class BaseListenerLayout {
         return r;
     }
 
-    public ConcurrentHashMap<Class<? extends BaseEvent>, ConcurrentSkipListSet<RegisteredListener<?>>> setUp(Eventable eventable) {
+    public ConcurrentHashMap<Class<? extends BaseEvent>, ConcurrentSkipListSet<RegisteredListener<?>>> setUp(IEventable eventable) {
         ConcurrentHashMap<Class<? extends BaseEvent>, ConcurrentSkipListSet<RegisteredListener<?>>> ret = new ConcurrentHashMap<>();
 
         for (final Method method : getMethods()) {
