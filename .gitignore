@@ -43,3 +43,8 @@ bin/
 
 ### JB IDEA ###
 /.idea/
+
+### PUBLISH ###
+publish.gradle
+./publish.gradle
+*publish.gradle

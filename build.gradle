@@ -6,6 +6,7 @@ plugins {
 }
 
 apply from: "$rootDir/dependencies.gradle"
+apply from: "$rootDir/publish.gradle"
 
 group 'tv.quaint'
 version '1.0-SNAPSHOT'
@@ -57,13 +58,19 @@ artifacts {
 }
 
 publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
     repositories {
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/Server-Utilities/TheBase")
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = GITHUB_ACTOR
+                password = GITHUB_TOKEN
             }
         }
     }

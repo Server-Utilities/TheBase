@@ -1,0 +1,4 @@
+ext {
+    GITHUB_ACTOR = "Quaintified"
+    GITHUB_TOKEN = "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"
+}
