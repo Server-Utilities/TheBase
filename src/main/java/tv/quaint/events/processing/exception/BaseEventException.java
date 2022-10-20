@@ -1,9 +1,6 @@
 package tv.quaint.events.processing.exception;
 
-import java.io.Serial;
-
 public class BaseEventException extends Exception {
-    @Serial
     private static final long serialVersionUID = 3532808232324183999L;
     private final Throwable cause;
 

@@ -1,18 +1,26 @@
 package tv.quaint.storage.resources.databases.configurations;
 
+import lombok.Getter;
+import lombok.Setter;
 import tv.quaint.storage.StorageUtils;
 import tv.quaint.storage.resources.databases.processing.MongoConnection;
 import tv.quaint.storage.resources.databases.processing.MySQLConnection;
 
 public class DatabaseConfig {
-    public String connectionUri;
-    public String database;
-    public String prefix;
-    public StorageUtils.DatabaseType type;
-    private MongoConnection mongoConnection;
-    private MySQLConnection mySQLConnection;
+    @Getter @Setter
+    String connectionUri;
+    @Getter @Setter
+    String database;
+    @Getter @Setter
+    String prefix;
+    @Getter @Setter
+    StorageUtils.SupportedDatabaseType type;
+    @Getter @Setter
+    MongoConnection mongoConnection;
+    @Getter @Setter
+    MySQLConnection mySQLConnection;
 
-    public DatabaseConfig(String connectionUri, String database, String prefix, StorageUtils.DatabaseType type) {
+    public DatabaseConfig(String connectionUri, String database, String prefix, StorageUtils.SupportedDatabaseType type) {
         this.connectionUri = connectionUri;
         this.database = database;
         this.prefix = prefix;

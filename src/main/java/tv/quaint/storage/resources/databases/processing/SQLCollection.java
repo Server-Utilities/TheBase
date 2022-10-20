@@ -1,14 +1,21 @@
 package tv.quaint.storage.resources.databases.processing;
 
-import java.util.TreeMap;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class SQLCollection {
-    public String collectionName;
-    public TreeMap<String, Object> document;
-    public String discriminatorKey;
-    public Object discriminator;
+    @Getter @Setter
+    String collectionName;
+    @Getter @Setter
+    ConcurrentSkipListMap<String, Object> document;
+    @Getter @Setter
+    String discriminatorKey;
+    @Getter @Setter
+    Object discriminator;
 
-    public SQLCollection(String collectionName, TreeMap<String, Object> document, String discriminatorKey, Object discriminator) {
+    public SQLCollection(String collectionName, ConcurrentSkipListMap<String, Object> document, String discriminatorKey, Object discriminator) {
         this.collectionName = collectionName;
         this.document = document;
         this.discriminatorKey = discriminatorKey;
@@ -17,7 +24,7 @@ public class SQLCollection {
     }
 
     public SQLCollection(String collectionName, String discriminatorKey, Object discriminator) {
-        this(collectionName, new TreeMap<>(), discriminatorKey, discriminator);
+        this(collectionName, new ConcurrentSkipListMap<>(), discriminatorKey, discriminator);
     }
 
     public void putSet(String key, Object value) {

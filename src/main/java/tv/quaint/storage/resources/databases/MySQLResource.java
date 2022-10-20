@@ -1,15 +1,19 @@
 package tv.quaint.storage.resources.databases;
 
+import lombok.Getter;
+import lombok.Setter;
 import tv.quaint.storage.resources.StorageResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 import tv.quaint.storage.resources.databases.processing.SQLCollection;
 
 public class MySQLResource extends StorageResource<SQLCollection> {
-    public DatabaseConfig databaseConfig;
-    public SQLCollection collection;
+    @Getter @Setter
+    DatabaseConfig databaseConfig;
+    @Getter @Setter
+    SQLCollection collection;
 
     public MySQLResource(DatabaseConfig databaseConfig, SQLCollection collection) {
-        super(SQLCollection.class, collection.discriminatorKey, collection.discriminator);
+        super(SQLCollection.class, collection.getDiscriminatorKey(), collection.getDiscriminator());
         this.databaseConfig = databaseConfig;
         this.collection = collection;
     }
@@ -22,7 +26,7 @@ public class MySQLResource extends StorageResource<SQLCollection> {
     @Override
     public void continueReloadResource() {
         this.databaseConfig.mySQLConnection().update(this.collection);
-        this.getMap().putAll(this.collection.document);
+        this.getMap().putAll(this.collection.getDocument());
     }
 
     @Override

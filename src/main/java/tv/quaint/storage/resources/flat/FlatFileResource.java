@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Scanner;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
@@ -96,11 +96,11 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
         return lineCount() <= 0;
     }
 
-    public TreeMap<Integer, String> lines() {
+    public ConcurrentSkipListMap<Integer, String> lines() {
         try {
             Scanner reader = new Scanner(this.selfFile);
 
-            TreeMap<Integer, String> lines = new TreeMap<>();
+            ConcurrentSkipListMap<Integer, String> lines = new ConcurrentSkipListMap<>();
             while (reader.hasNext()) {
                 String s = reader.nextLine();
                 lines.put(lines.size() + 1, s);
@@ -108,7 +108,7 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
             return lines;
         } catch (Exception e) {
             e.printStackTrace();
-            return new TreeMap<>();
+            return new ConcurrentSkipListMap<>();
         }
     }
 

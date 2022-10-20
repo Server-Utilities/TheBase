@@ -4,15 +4,20 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import lombok.Getter;
+import lombok.Setter;
 import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MongoConnection {
-    public MongoClient client;
-    public MongoDatabase database;
-    public String tablePrefix;
+    @Getter @Setter
+    MongoClient client;
+    @Getter @Setter
+    MongoDatabase database;
+    @Getter @Setter
+    String tablePrefix;
 
     public MongoConnection(String connectionUri, String database, String tablePrefix) {
         this.client = new MongoClient(new MongoClientURI(connectionUri));

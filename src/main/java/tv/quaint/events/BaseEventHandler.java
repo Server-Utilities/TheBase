@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 /**
  * A list of event handlers, stored per-event.
@@ -32,14 +33,14 @@ public class BaseEventHandler {
     public static void put(Class<? extends BaseEvent> aClass, RegisteredListener<?>... registeredListener) {
         ConcurrentSkipListSet<RegisteredListener<?>> listeners = getRegularEvents().get(aClass);
         if (listeners == null) listeners = new ConcurrentSkipListSet<>();
-        listeners.addAll(Arrays.stream(registeredListener).toList());
+        listeners.addAll(Arrays.stream(registeredListener).collect(Collectors.toList()));
         getRegularEvents().put(aClass, listeners);
     }
 
     public static void unput(Class<? extends BaseEvent> aClass, RegisteredListener<?>... registeredListener) {
         ConcurrentSkipListSet<RegisteredListener<?>> listeners = getRegularEvents().get(aClass);
         if (listeners == null) listeners = new ConcurrentSkipListSet<>();
-        Arrays.stream(registeredListener).toList().forEach(listeners::remove);
+        Arrays.stream(registeredListener).collect(Collectors.toList()).forEach(listeners::remove);
         getRegularEvents().put(aClass, listeners);
     }
 

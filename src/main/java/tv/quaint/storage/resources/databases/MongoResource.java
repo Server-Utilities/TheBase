@@ -1,16 +1,21 @@
 package tv.quaint.storage.resources.databases;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bson.Document;
 import tv.quaint.storage.StorageUtils;
 import tv.quaint.storage.resources.StorageResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class MongoResource extends StorageResource<Document> {
-    public DatabaseConfig databaseConfig;
-    public String collectionName;
-    public Document sheet;
+    @Getter @Setter
+    DatabaseConfig databaseConfig;
+    @Getter @Setter
+    String collectionName;
+    @Getter @Setter
+    Document sheet;
 
     public MongoResource(DatabaseConfig databaseConfig, String collectionName, String discriminatorKey,  Object discriminator) {
         super(Document.class, StorageUtils.parseDotsMongo(discriminatorKey), discriminator);
@@ -88,7 +93,7 @@ public class MongoResource extends StorageResource<Document> {
     }
 
     public void sortDocument() {
-        TreeMap<String, Object> toSort = new TreeMap<>(sheet);
+        ConcurrentSkipListMap<String, Object> toSort = new ConcurrentSkipListMap<>(sheet);
         this.sheet = new Document(toSort);
     }
 }

@@ -7,7 +7,6 @@ import de.leonhard.storage.Yaml;
 import de.leonhard.storage.internal.FlatFile;
 import lombok.Getter;
 import org.bson.Document;
-import tv.quaint.objects.handling.IEventable;
 import tv.quaint.objects.handling.derived.IModifierEventable;
 
 import java.io.File;
@@ -18,7 +17,7 @@ public class StorageUtils {
     @Getter
     private static final File environmentFolder = new File(System.getProperty("user.dir"));
 
-    public enum StorageType {
+    public enum SupportedStorageType {
         YAML,
         JSON,
         TOML,
@@ -26,7 +25,7 @@ public class StorageUtils {
         MYSQL,
         ;
     }
-    public enum DatabaseType {
+    public enum SupportedDatabaseType {
         MONGO,
         MYSQL,
         ;
@@ -49,21 +48,21 @@ public class StorageUtils {
         }
     }
 
-    public static StorageType getStorageTypeFromLeonhard(Class<? extends FlatFile> leonhard) {
-        if (leonhard.equals(Yaml.class)) return StorageType.YAML;
-        if (leonhard.equals(Config.class)) return StorageType.YAML;
-        if (leonhard.equals(Json.class)) return StorageType.JSON;
-        if (leonhard.equals(Toml.class)) return StorageType.TOML;
+    public static SupportedStorageType getStorageTypeFromLeonhard(Class<? extends FlatFile> leonhard) {
+        if (leonhard.equals(Yaml.class)) return SupportedStorageType.YAML;
+        if (leonhard.equals(Config.class)) return SupportedStorageType.YAML;
+        if (leonhard.equals(Json.class)) return SupportedStorageType.JSON;
+        if (leonhard.equals(Toml.class)) return SupportedStorageType.TOML;
 
         return null;
     }
 
-    public static StorageType getStorageType(Class<?> clazz) {
-        if (clazz.equals(Yaml.class)) return StorageType.YAML;
-        if (clazz.equals(Config.class)) return StorageType.YAML;
-        if (clazz.equals(Json.class)) return StorageType.JSON;
-        if (clazz.equals(Toml.class)) return StorageType.TOML;
-        if (clazz.equals(Document.class)) return StorageType.MONGO;
+    public static SupportedStorageType getStorageType(Class<?> clazz) {
+        if (clazz.equals(Yaml.class)) return SupportedStorageType.YAML;
+        if (clazz.equals(Config.class)) return SupportedStorageType.YAML;
+        if (clazz.equals(Json.class)) return SupportedStorageType.JSON;
+        if (clazz.equals(Toml.class)) return SupportedStorageType.TOML;
+        if (clazz.equals(Document.class)) return SupportedStorageType.MONGO;
 
         return null;
     }

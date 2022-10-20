@@ -80,7 +80,7 @@ public class BaseListenerLayout {
                 }
             }
 
-            BaseEventExecutor executor = (listener1, event) -> {
+            BaseEventExecutor executor = (listener1, event):
                 try {
                     if (!eventClass.isAssignableFrom(event.getClass())) {
                         return;

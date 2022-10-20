@@ -33,6 +33,11 @@ dependencies {
     annotationProcessor(ANNOTATIONS)
 }
 
+java {
+    sourceCompatibility(11)
+    targetCompatibility(11)
+}
+
 blossom {
     replaceToken '{{version}}', rootProject.version, 'src/main/java/tv/quaint/TheBase.java'
     replaceToken '{{version}}', rootProject.version, 'tv/quaint/TheBase.java'

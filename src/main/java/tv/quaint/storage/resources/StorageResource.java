@@ -9,14 +9,14 @@ import tv.quaint.utils.MathUtils;
 import java.io.InputStream;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public abstract class StorageResource<T> implements Comparable<StorageResource<?>> {
     @Getter
     private final Date initializeDate;
     @Getter @Setter
-    private StorageUtils.StorageType type;
+    private StorageUtils.SupportedStorageType type;
     @Getter @Setter
     private Class<T> resourceType;
     @Getter @Setter
@@ -28,7 +28,7 @@ public abstract class StorageResource<T> implements Comparable<StorageResource<?
     @Getter @Setter
     private Date lastReload;
     @Getter @Setter
-    private TreeMap<String, Object> map;
+    private ConcurrentSkipListMap<String, Object> map;
 
     public StorageResource(Class<T> resourceType, String discriminatorKey, Object discriminator) {
         initializeDate = new Date();
@@ -37,7 +37,7 @@ public abstract class StorageResource<T> implements Comparable<StorageResource<?
         this.discriminator = discriminator;
         this.type = StorageUtils.getStorageType(resourceType);
         this.hangingMillis = 5000;
-        this.map = new TreeMap<>();
+        this.map = new ConcurrentSkipListMap<>();
     }
 
     public void reloadResource() {

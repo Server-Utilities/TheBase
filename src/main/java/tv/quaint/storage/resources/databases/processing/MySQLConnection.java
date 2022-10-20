@@ -2,6 +2,8 @@ package tv.quaint.storage.resources.databases.processing;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
@@ -10,10 +12,14 @@ import java.util.Date;
 import java.util.List;
 
 public class MySQLConnection {
-    public HikariConfig config;
-    public HikariDataSource dataSource;
-    public Connection connection;
-    public String tablePrefix;
+    @Getter @Setter
+    HikariConfig config;
+    @Getter @Setter
+    HikariDataSource dataSource;
+    @Setter
+    Connection connection;
+    @Getter @Setter
+    String tablePrefix;
 
     public MySQLConnection(String connectionUri, String database, String tablePrefix) {
         this.tablePrefix = tablePrefix;
@@ -107,13 +113,13 @@ public class MySQLConnection {
     }
 
     public String getSQLType(Object object) {
-        if (object instanceof String string) return "VARCHAR(512)";
-        if (object instanceof List<?> list) return "VARCHAR(512)";
-        if (object instanceof Integer integer) return "INTEGER(128)";
-        if (object instanceof Float flo) return "FLOAT(128)";
-        if (object instanceof Double doub) return "DOUBLE(128,7)";
-        if (object instanceof Long lon) return "BIGINT(128)";
-        if (object instanceof Date date) return "DATETIME";
+        if (object instanceof String) return "VARCHAR(512)";
+        if (object instanceof List<?>) return "VARCHAR(512)";
+        if (object instanceof Integer) return "INTEGER(128)";
+        if (object instanceof Float) return "FLOAT(128)";
+        if (object instanceof Double) return "DOUBLE(128,7)";
+        if (object instanceof Long) return "BIGINT(128)";
+        if (object instanceof Date) return "DATETIME";
         return "VARCHAR(512)";
     }
 
@@ -142,24 +148,24 @@ public class MySQLConnection {
         try {
             PreparedStatement statement = getCollection(collection).prepareStatement("SELECT COUNT(*) FROM " + collection.collectionName + " WHERE " + collection.discriminatorKey + " = ?;");
             switch (getSQLDataType(collection.discriminator)) {
-                case VARCHAR -> {
+                case VARCHAR:
                     statement.setString(1, (String) collection.discriminator);
-                }
-                case INTEGER -> {
+                    break;
+                case INTEGER:
                     statement.setInt(1, (int) collection.discriminator);
-                }
-                case FLOAT -> {
+                    break;
+                case FLOAT:
                     statement.setFloat(1, (float) collection.discriminator);
-                }
-                case DOUBLE -> {
+                    break;
+                case DOUBLE:
                     statement.setDouble(1, (double) collection.discriminator);
-                }
-                case BIGINT -> {
+                    break;
+                case BIGINT:
                     statement.setLong(1, (long) collection.discriminator);
-                }
-                case DATETIME -> {
+                    break;
+                case DATETIME:
                     statement.setDate(1, (java.sql.Date) collection.discriminator);
-                }
+                    break;
             }
             ResultSet set = statement.executeQuery();
 
@@ -212,7 +218,7 @@ public class MySQLConnection {
             builder.append("`");
             Object object = collection.document.get(key);
             builder.append(key).append("` = ");
-            if (object instanceof String string) builder.append("'").append(string).append("'");
+            if (object instanceof String) builder.append("'").append((String) object).append("'");
             else builder.append(object);
             if (key.equals(collection.document.lastKey())) continue;
 
@@ -243,11 +249,11 @@ public class MySQLConnection {
 
         for (Object object : collection.document.values()) {
             if (object.equals(collection.document.lastKey())) {
-                if (object instanceof String string) builder.append("'").append(string).append("'");
+                if (object instanceof String) builder.append("'").append((String) object).append("'");
                 else builder.append(object);
                 continue;
             }
-            if (object instanceof String string) builder.append("'").append(string).append("', ");
+            if (object instanceof String) builder.append("'").append((String) object).append("', ");
             else builder.append(object).append(", ");
         }
 
@@ -260,24 +266,24 @@ public class MySQLConnection {
         try {
             PreparedStatement statement = getCollection(collection).prepareStatement("DELETE FROM " + collection.collectionName + " WHERE " + collection.discriminatorKey + " = ?;");
             switch (getSQLDataType(collection.discriminator)) {
-                case VARCHAR -> {
+                case VARCHAR:
                     statement.setString(1, (String) collection.discriminator);
-                }
-                case INTEGER -> {
+                    break;
+                case INTEGER:
                     statement.setInt(1, (int) collection.discriminator);
-                }
-                case FLOAT -> {
+                    break;
+                case FLOAT:
                     statement.setFloat(1, (float) collection.discriminator);
-                }
-                case DOUBLE -> {
+                    break;
+                case DOUBLE:
                     statement.setDouble(1, (double) collection.discriminator);
-                }
-                case BIGINT -> {
+                    break;
+                case BIGINT:
                     statement.setLong(1, (long) collection.discriminator);
-                }
-                case DATETIME -> {
+                    break;
+                case DATETIME:
                     statement.setDate(1, (java.sql.Date) collection.discriminator);
-                }
+                    break;
             }
             statement.execute();
             statement.close();
@@ -292,24 +298,24 @@ public class MySQLConnection {
         try {
             PreparedStatement statement = getOrGetConnection().prepareStatement("SELECT * FROM " + collection.collectionName + " WHERE " + collection.discriminatorKey + " = ?;");
             switch (getSQLDataType(collection.discriminator)) {
-                case VARCHAR -> {
+                case VARCHAR:
                     statement.setString(1, (String) collection.discriminator);
-                }
-                case INTEGER -> {
+                    break;
+                case INTEGER:
                     statement.setInt(1, (int) collection.discriminator);
-                }
-                case FLOAT -> {
+                    break;
+                case FLOAT:
                     statement.setFloat(1, (float) collection.discriminator);
-                }
-                case DOUBLE -> {
+                    break;
+                case DOUBLE:
                     statement.setDouble(1, (double) collection.discriminator);
-                }
-                case BIGINT -> {
+                    break;
+                case BIGINT:
                     statement.setLong(1, (long) collection.discriminator);
-                }
-                case DATETIME -> {
+                    break;
+                case DATETIME:
                     statement.setDate(1, (java.sql.Date) collection.discriminator);
-                }
+                    break;
             }
 
             ResultSet set = statement.executeQuery();
