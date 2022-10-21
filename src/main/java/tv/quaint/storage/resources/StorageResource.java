@@ -3,6 +3,7 @@ package tv.quaint.storage.resources;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import tv.quaint.objects.Classifiable;
 import tv.quaint.storage.StorageUtils;
 import tv.quaint.utils.MathUtils;
 
@@ -12,7 +13,7 @@ import java.util.Date;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public abstract class StorageResource<T> implements Comparable<StorageResource<?>> {
+public abstract class StorageResource<T> implements Comparable<StorageResource<?>>, Classifiable<T> {
     @Getter
     private final Date initializeDate;
     @Getter @Setter
@@ -115,5 +116,10 @@ public abstract class StorageResource<T> implements Comparable<StorageResource<?
     @Override
     public int compareTo(@NotNull StorageResource<?> other) {
         return Long.compare(getInitializeDate().getTime(), other.getInitializeDate().getTime());
+    }
+
+    @Override
+    public Class<T> getClassifier() {
+        return getResourceType();
     }
 }

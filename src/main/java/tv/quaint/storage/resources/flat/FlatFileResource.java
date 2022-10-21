@@ -27,6 +27,7 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
 
     public FlatFileResource(Class<T> resourceType, String fileName, File parentDirectory, boolean selfContained) {
         super(resourceType, "name", fileName);
+        
         this.fileName = fileName;
         this.parentDirectory = parentDirectory;
         this.selfFile = new File(parentDirectory, fileName);

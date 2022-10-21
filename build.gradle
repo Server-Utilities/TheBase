@@ -8,7 +8,7 @@ plugins {
 apply from: "$rootDir/dependencies.gradle"
 
 group 'com.github.Server-Utilities'
-version '1.0.0.0'
+version '1.0.5'
 
 repositories {
     mavenLocal()
@@ -49,7 +49,27 @@ blossom {
 publishing {
     publications {
         maven(MavenPublication) {
-            publication -> project.shadow.component(publication)
+            publication -> {
+                project.shadow.component(publication)
+            }
+                project.shadowJar.relocate('de.leonhard', 'tv.quaint.thebase.lib.leonhard')
+                project.shadowJar.relocate('net.kyori.event', 'tv.quaint.thebase.lib.eventbus')
+                project.shadowJar.relocate('com.github.benmanes.caffeine', 'tv.quaint.thebase.lib.caffeine')
+                project.shadowJar.relocate('okio', 'tv.quaint.thebase.lib.okio')
+                project.shadowJar.relocate('okhttp3', 'tv.quaint.thebase.lib.okhttp3')
+                project.shadowJar.relocate('net.bytebuddy', 'tv.quaint.thebase.lib.bytebuddy')
+                project.shadowJar.relocate('me.lucko.commodore', 'tv.quaint.thebase.lib.commodore')
+                project.shadowJar.relocate('org.mariadb.jdbc', 'tv.quaint.thebase.lib.mariadb')
+                project.shadowJar.relocate('com.mysql', 'tv.quaint.thebase.lib.mysql')
+                project.shadowJar.relocate('org.postgresql', 'tv.quaint.thebase.lib.postgresql')
+                project.shadowJar.relocate('com.zaxxer.hikari', 'tv.quaint.thebase.lib.hikari')
+                project.shadowJar.relocate('com.mongodb', 'tv.quaint.thebase.lib.mongodb')
+                project.shadowJar.relocate('org.bson', 'tv.quaint.thebase.lib.bson')
+                project.shadowJar.relocate('redis.clients.jedis', 'tv.quaint.thebase.lib.jedis')
+                project.shadowJar.relocate('com.rabbitmq', 'tv.quaint.thebase.lib.rabbitmq')
+                project.shadowJar.relocate('org.apache.commons.pool2', 'tv.quaint.thebase.lib.commonspool2')
+                project.shadowJar.relocate('ninja.leaping.configurate', 'tv.quaint.thebase.lib.configurate')
+                project.shadowJar.relocate('org.yaml.snakeyaml', 'tv.quaint.thebase.lib.yaml')
         }
     }
 }

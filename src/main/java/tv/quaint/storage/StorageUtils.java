@@ -34,7 +34,7 @@ public class StorageUtils {
     public static File initializeModifierEventableFolder(IModifierEventable eventable) {
         File parentDir = getEnvironmentFolder();
         if (eventable.isMod()) parentDir = new File(getEnvironmentFolder(), "mods" + File.separator);
-        if (eventable.isMod()) parentDir = new File(getEnvironmentFolder(), "plugins" + File.separator);
+        if (eventable.isPlugin()) parentDir = new File(getEnvironmentFolder(), "plugins" + File.separator);
         return new File(parentDir, eventable.getIdentifier() + File.separator);
     }
 

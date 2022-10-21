@@ -9,7 +9,7 @@ public abstract class ModEventable implements IModifierEventable {
     @Getter
     final String identifier;
     @Getter
-    final ModifierType modifierType = ModifierType.PLUGIN;
+    final ModifierType modifierType = ModifierType.MOD;
     @Getter
     final File dataFolder;
 
