@@ -1,9 +1,16 @@
 package tv.quaint.storage.resources.databases.differentiating;
 
+import org.bson.Document;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
+import tv.quaint.storage.resources.databases.processing.interfacing.DBColumn;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBDataLike;
+import tv.quaint.storage.resources.databases.processing.interfacing.DBRow;
+import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
 
-public interface SpecificConnection<T> {
+import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListMap;
+
+public interface SpecificConnection<T, D extends DBDataLike<?>, C extends DBColumn, R extends DBRow<C, D>> {
     /**
      * Creates a connection defined by {@link T}.
      * Note: All objects implementing this interface must have a constructor with a {@link DatabaseConfig}.
@@ -12,32 +19,66 @@ public interface SpecificConnection<T> {
 
     /**
      * Replaces an object in the database with a defined {@link DBDataLike}.
-     * @param table The table to replace the object in.
+     *
+     * @param table            The table to replace the object in.
      * @param discriminatorKey The discriminator key to use.
-     * @param discriminator The discriminator to use.
-     * @param key The key to replace.
-     * @param to The value to replace the key with.
-     * @param <D> The type of {@link DBDataLike} to use.
+     * @param discriminator    The discriminator to use.
+     * @param key              The key to replace.
+     * @param to               The value to replace the key with.
      */
-    <D extends DBDataLike<?>> void replace(String table, String discriminatorKey, String discriminator, String key, D to);
+    void replace(String table, String discriminatorKey, String discriminator, String key, D to);
 
     /**
      * Gets a defined {@link DBDataLike} by its key.
-     * @param table The table to get the {@link DBDataLike} from.
+     *
+     * @param table            The table to get the {@link DBDataLike} from.
      * @param discriminatorKey THhe discriminator key to use.
-     * @param discriminator The discriminator to use.
-     * @param key The key to use for getting the {@link DBDataLike}.
-     * @param <D> The type of {@link DBDataLike} to use.
+     * @param discriminator    The discriminator to use.
+     * @param key              The key to use for getting the {@link DBDataLike}.
      */
-    <D extends DBDataLike<?>> D get(String table, String discriminatorKey, String discriminator, String key);
+    D get(String table, String discriminatorKey, String discriminator, String key);
 
     /**
      * Checks if a {@link DBDataLike} exists with the defined key on the defined object.
-     * @param table The table to check the {@link DBDataLike} in.
+     *
+     * @param table            The table to check the {@link DBDataLike} in.
      * @param discriminatorKey The discriminator key to use.
-     * @param discriminator The discriminator to use.
-     * @param key The key to check for.
+     * @param discriminator    The discriminator to use.
+     * @param key              The key to check for.
      * @return Whether the {@link DBDataLike} exists or not.
      */
     boolean exists(String table, String discriminatorKey, String discriminator, String key);
+
+    /**
+     * Gets a row as a(n) {@link R} using a table name.
+     *
+     * @param table            The table to get the row from.
+     * @param discriminatorKey The discriminator key to use.
+     * @param discriminator    The discriminator to use.
+     * @return The row as the {@link R}.
+     */
+    R getRow(String table, String discriminatorKey, String discriminator);
+
+
+    /**
+     * Creates a row as a(n) {@link R} using a table name.
+     *
+     * @param table            The table to create the row on.
+     * @param discriminatorKey The discriminator key to use.
+     * @param discriminator    The discriminator to use.
+     * @param data             The data to use for the new row.
+     * @return The row as the {@link R}.
+     */
+    R createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, D> data);
+
+    /**
+     * Creates a row as a(n) {@link R} using a table name.
+     *
+     * @param table            The table to create the row on.
+     * @param discriminatorKey The discriminator key to use.
+     * @param discriminator    The discriminator to use.
+     * @param row              The row to use as the parent.
+     * @return The row as the {@link R}.
+     */
+    R createRow(String table, String discriminatorKey, String discriminator, R row);
 }

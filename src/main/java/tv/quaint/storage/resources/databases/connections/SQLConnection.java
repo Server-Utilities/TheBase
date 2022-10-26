@@ -4,13 +4,17 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 import tv.quaint.storage.StorageUtils;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 import tv.quaint.storage.resources.databases.differentiating.SQLSpecific;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBDataLike;
+import tv.quaint.storage.resources.databases.processing.mongo.data.MongoDataLike;
+import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
 import tv.quaint.storage.resources.databases.processing.sql.SQLSchematic;
 import tv.quaint.storage.resources.databases.processing.sql.data.AbstractSQLData;
 import tv.quaint.storage.resources.databases.processing.sql.data.SQLColumn;
+import tv.quaint.storage.resources.databases.processing.sql.data.SQLDataLike;
 import tv.quaint.storage.resources.databases.processing.sql.data.SQLRow;
 import tv.quaint.storage.resources.databases.processing.sql.data.defined.DefinedSQLData;
 
@@ -118,8 +122,47 @@ public class SQLConnection implements SQLSpecific {
     }
 
     @Override
+    public SQLRow createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, SQLDataLike<?>> data) {
+        String s = getAsInsert(table, data);
+        executeUpdate(s);
+
+        return getRow(table, discriminatorKey, discriminator);
+    }
+
+    @Override
+    public SQLRow createRow(String table, String discriminatorKey, String discriminator, SQLRow row) {
+        ConcurrentSkipListMap<String, SQLDataLike<?>> r = new ConcurrentSkipListMap<>();
+
+        row.getMap().forEach((k, v) -> r.put(k.getName(), v));
+
+        return createRow(table, discriminatorKey, discriminator, r);
+    }
+
+    @Override
     public void createTable(SQLSchematic schematic) {
         executeUpdate(schematic.getCreateTableQuery());
+    }
+
+    @Override
+    public String getAsInsert(String table, ConcurrentSkipListMap<String, SQLDataLike<?>> data) {
+        StringBuilder builder = new StringBuilder("INSERT INTO " + table + " (");
+        StringBuilder values = new StringBuilder("VALUES (");
+        AtomicInteger atomicInteger = new AtomicInteger(0);
+        data.forEach((k, v) -> {
+            builder.append(k);
+            if (v.getType().equals(SQLSchematic.SQLType.VARCHAR)) {
+                values.append("'").append(v.getData()).append("'");
+            } else {
+                values.append(v.getData());
+            }
+            if (atomicInteger.get() != data.size() - 1) {
+                builder.append(", ");
+                values.append(", ");
+            }
+            atomicInteger.incrementAndGet();
+        });
+        builder.append(") ").append(values).append(")");
+        return builder.toString();
     }
 
     @Override
@@ -170,7 +213,7 @@ public class SQLConnection implements SQLSpecific {
     }
 
     @Override
-    public <D extends DBDataLike<?>> void replace(String table, String discriminatorKey, String discriminator, String key, D to) {
+    public void replace(String table, String discriminatorKey, String discriminator, String key, SQLDataLike<?> to) {
         StringBuilder builder = new StringBuilder(key + " = ");
         if (to instanceof DefinedSQLData.SQLVarcharData) {
             builder.append("'").append(to.getData()).append("'");
@@ -182,11 +225,11 @@ public class SQLConnection implements SQLSpecific {
     }
 
     @Override
-    public <D extends DBDataLike<?>> D get(String table, String discriminatorKey, String discriminator, String key) {
+    public SQLDataLike<?> get(String table, String discriminatorKey, String discriminator, String key) {
         try {
             ResultSet set = pull(table, discriminatorKey, discriminator);
             if (set.getString(key) != null) {
-                return (D) DefinedSQLData.getFromType(SQLSchematic.SQLType.fromObject(set.getObject(key)), set.getObject(key));
+                return DefinedSQLData.getFromType(SQLSchematic.SQLType.fromObject(set.getObject(key)), set.getObject(key));
             }
             set.close();
         } catch (Exception e) {

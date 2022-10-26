@@ -3,11 +3,14 @@ package tv.quaint.storage.resources.databases.differentiating;
 import com.zaxxer.hikari.HikariDataSource;
 import tv.quaint.storage.resources.databases.processing.sql.SQLSchematic;
 import tv.quaint.storage.resources.databases.processing.sql.data.AbstractSQLData;
+import tv.quaint.storage.resources.databases.processing.sql.data.SQLColumn;
+import tv.quaint.storage.resources.databases.processing.sql.data.SQLDataLike;
 import tv.quaint.storage.resources.databases.processing.sql.data.SQLRow;
 
 import java.sql.ResultSet;
+import java.util.concurrent.ConcurrentSkipListMap;
 
-public interface SQLSpecific extends SpecificConnection<HikariDataSource> {
+public interface SQLSpecific extends SpecificConnection<HikariDataSource, SQLDataLike<?>, SQLColumn, SQLRow> {
     /**
      * Replaces an object in the database.
      */
@@ -42,4 +45,9 @@ public interface SQLSpecific extends SpecificConnection<HikariDataSource> {
      * Creates a table if it doesn't exist.
      */
     void createTable(SQLSchematic schematic);
+
+    /**
+     * Gets a string to insert defined data into the table.
+     */
+    String getAsInsert(String table, ConcurrentSkipListMap<String, SQLDataLike<?>> data);
 }

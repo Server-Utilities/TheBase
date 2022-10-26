@@ -6,7 +6,7 @@ import tv.quaint.storage.resources.StorageResource;
 import tv.quaint.storage.resources.databases.differentiating.SpecificConnection;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBRow;
 
-public abstract class DatabaseResource<R extends DBRow<?, ?>, M extends SpecificConnection<?>> extends StorageResource<R> {
+public abstract class DatabaseResource<R extends DBRow<?, ?>, M extends SpecificConnection<?, ?, ?, ?>> extends StorageResource<R> {
     @Getter @Setter
     private M connection;
     @Getter @Setter
@@ -19,6 +19,13 @@ public abstract class DatabaseResource<R extends DBRow<?, ?>, M extends Specific
 
         this.connection = connection;
         this.row = row;
+        this.table = table;
+    }
+
+    public DatabaseResource(String discriminatorKey, String discriminator, String table, M connection) {
+        super(discriminatorKey, discriminator);
+
+        this.connection = connection;
         this.table = table;
     }
 

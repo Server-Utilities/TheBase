@@ -11,6 +11,10 @@ public class MongoResource extends DatabaseResource<MongoRow, MongoConnection> {
         super(discriminatorKey, discriminator, table, row, connection);
     }
 
+    public MongoResource(String discriminatorKey, String discriminator, String table, MongoConnection connection) {
+        super(discriminatorKey, discriminator, table, connection);
+    }
+
     @Override
     public void continueReloadResource() {
         setRow(getConnection().getRow(getTable(), getDiscriminatorKey(), getDiscriminator()));

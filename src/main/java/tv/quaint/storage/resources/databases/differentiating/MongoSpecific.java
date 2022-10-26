@@ -5,9 +5,11 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import tv.quaint.storage.resources.databases.processing.mongo.MongoSchematic;
+import tv.quaint.storage.resources.databases.processing.mongo.data.MongoColumn;
+import tv.quaint.storage.resources.databases.processing.mongo.data.MongoDataLike;
 import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
 
-public interface MongoSpecific extends SpecificConnection<MongoClient> {
+public interface MongoSpecific extends SpecificConnection<MongoClient, MongoDataLike<?>, MongoColumn, MongoRow> {
     /**
      * Replaces an object in the database.
      */
@@ -52,11 +54,6 @@ public interface MongoSpecific extends SpecificConnection<MongoClient> {
      * Gets a document as a {@link MongoRow}.
      */
     MongoRow getRow(MongoCollection<Document> collection, String discriminatorKey, String discriminator);
-
-    /**
-     * Gets a document as a {@link MongoRow} using a collection name.
-     */
-    MongoRow getRow(String collectionName, String discriminatorKey, String discriminator);
 
     /**
      * Gets a document as a {@link MongoRow} using said document.

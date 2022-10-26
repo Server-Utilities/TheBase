@@ -11,6 +11,10 @@ public class MySQLResource extends DatabaseResource<SQLRow, SQLConnection> {
         super(discriminatorKey, discriminator, table, row, connection);
     }
 
+    public MySQLResource(String discriminatorKey, String discriminator, String table, SQLConnection connection) {
+        super(discriminatorKey, discriminator, table, connection);
+    }
+
     @Override
     public void continueReloadResource() {
         setRow(getConnection().getRow(getTable(), getDiscriminatorKey(), getDiscriminator()));

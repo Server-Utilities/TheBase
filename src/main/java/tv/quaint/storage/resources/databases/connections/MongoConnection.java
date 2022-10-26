@@ -14,6 +14,7 @@ import tv.quaint.storage.resources.databases.processing.mongo.data.MongoColumn;
 import tv.quaint.storage.resources.databases.processing.mongo.data.MongoDataLike;
 import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
 import tv.quaint.storage.resources.databases.processing.mongo.data.defined.DefinedMongoData;
+import tv.quaint.storage.resources.databases.processing.sql.data.SQLDataLike;
 
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -81,6 +82,24 @@ public class MongoConnection implements MongoSpecific {
     }
 
     @Override
+    public MongoRow createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, MongoDataLike<?>> data) {
+        Document document = new Document(discriminatorKey, discriminator);
+        document.putAll(data);
+        getCollection(table).insertOne(document);
+
+        return getRow(table, discriminatorKey, discriminator);
+    }
+
+    @Override
+    public MongoRow createRow(String table, String discriminatorKey, String discriminator, MongoRow row) {
+        ConcurrentSkipListMap<String, MongoDataLike<?>> r = new ConcurrentSkipListMap<>();
+
+        row.getMap().forEach((k, v) -> r.put(k.getName(), v));
+
+        return createRow(table, discriminatorKey, discriminator, r);
+    }
+
+    @Override
     public MongoRow getRow(Document document) {
         ConcurrentSkipListMap<MongoColumn, MongoDataLike<?>> columns = new ConcurrentSkipListMap<>();
         document.forEach((key, value) -> {
@@ -122,16 +141,16 @@ public class MongoConnection implements MongoSpecific {
     }
 
     @Override
-    public <D extends DBDataLike<?>> void replace(String table, String discriminatorKey, String discriminator, String key, D to) {
+    public void replace(String table, String discriminatorKey, String discriminator, String key, MongoDataLike<?> to) {
         Document document = getRow(table, discriminatorKey, discriminator).asDocument();
         document.replace(key, to.getData());
         replace(table, discriminatorKey, discriminator, document);
     }
 
     @Override
-    public <D extends DBDataLike<?>> D get(String table, String discriminatorKey, String discriminator, String key) {
+    public MongoDataLike<?> get(String table, String discriminatorKey, String discriminator, String key) {
         try {
-            return (D) getRow(table, discriminatorKey, discriminator).getValue(key);
+            return getRow(table, discriminatorKey, discriminator).getValue(key);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
