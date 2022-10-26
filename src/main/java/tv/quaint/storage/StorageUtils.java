@@ -23,6 +23,7 @@ public class StorageUtils {
         TOML,
         MONGO,
         MYSQL,
+        SQLITE,
         ;
     }
     public enum SupportedDatabaseType {
