@@ -1,56 +1,52 @@
 package tv.quaint.storage.resources.databases;
 
-import lombok.Getter;
-import lombok.Setter;
-import tv.quaint.storage.resources.StorageResource;
-import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
-import tv.quaint.storage.resources.databases.processing.SQLCollection;
+import tv.quaint.storage.resources.databases.connections.SQLConnection;
+import tv.quaint.storage.resources.databases.processing.sql.SQLSchematic;
+import tv.quaint.storage.resources.databases.processing.sql.data.AbstractSQLData;
+import tv.quaint.storage.resources.databases.processing.sql.data.SQLRow;
+import tv.quaint.storage.resources.databases.processing.sql.data.defined.DefinedSQLData;
 
-public class MySQLResource extends StorageResource<SQLCollection> {
-    @Getter @Setter
-    DatabaseConfig databaseConfig;
-    @Getter @Setter
-    SQLCollection collection;
-
-    public MySQLResource(DatabaseConfig databaseConfig, SQLCollection collection) {
-        super(SQLCollection.class, collection.getDiscriminatorKey(), collection.getDiscriminator());
-        this.databaseConfig = databaseConfig;
-        this.collection = collection;
-    }
-
-    @Override
-    public <O> O get(String key, Class<O> def) {
-        return this.collection.get(key, def);
+public class MySQLResource extends DatabaseResource<SQLRow, SQLConnection> {
+    public MySQLResource(String discriminatorKey, String discriminator, String table, SQLRow row, SQLConnection connection) {
+        super(discriminatorKey, discriminator, table, row, connection);
     }
 
     @Override
     public void continueReloadResource() {
-        this.databaseConfig.mySQLConnection().update(this.collection);
-        this.getMap().putAll(this.collection.getDocument());
+        setRow(getConnection().getRow(getTable(), getDiscriminatorKey(), getDiscriminator()));
     }
 
     @Override
     public void write(String key, Object value) {
-        this.collection.putSet(key, value);
+        AbstractSQLData<?> data = DefinedSQLData.getFromType(SQLSchematic.SQLType.fromObject(value), value);
+        if (data == null) return;
+
+        getConnection().replace(getTable(), getDiscriminatorKey(), getDiscriminator(), key, data);
     }
 
     @Override
     public <O> O getOrSetDefault(String key, O value) {
-        return this.collection.getOrSetDefault(key, value);
+        if (get(key, value.getClass()) == null) {
+            write(key, value);
+        }
+
+        O o = (O) get(key, value.getClass());
+
+        return o == null ? value : o;
     }
 
     @Override
     public void push() {
-        this.databaseConfig.mySQLConnection().push(this.collection);
+        getConnection().replace(getTable(), getDiscriminatorKey(), getDiscriminator(), getRow());
     }
 
     @Override
     public void delete() {
-        this.databaseConfig.mySQLConnection().delete(this.collection);
+        getConnection().delete(getTable(), getDiscriminatorKey(), getDiscriminator());
     }
 
     @Override
     public boolean exists() {
-        return this.databaseConfig.mySQLConnection().exists(this.collection);
+        return getConnection().exists(getTable(), getDiscriminatorKey(), getDiscriminator());
     }
 }

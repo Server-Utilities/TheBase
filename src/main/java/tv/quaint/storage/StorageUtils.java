@@ -28,6 +28,12 @@ public class StorageUtils {
     public enum SupportedDatabaseType {
         MONGO,
         MYSQL,
+        SQLITE,
+        ;
+    }
+    public enum SupportedSQLType {
+        MYSQL,
+        SQLITE,
         ;
     }
 

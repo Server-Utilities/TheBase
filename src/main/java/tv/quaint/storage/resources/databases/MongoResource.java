@@ -1,99 +1,52 @@
 package tv.quaint.storage.resources.databases;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.bson.Document;
-import tv.quaint.storage.StorageUtils;
-import tv.quaint.storage.resources.StorageResource;
-import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
+import tv.quaint.storage.resources.databases.connections.MongoConnection;
+import tv.quaint.storage.resources.databases.processing.mongo.MongoSchematic;
+import tv.quaint.storage.resources.databases.processing.mongo.data.AbstractMongoData;
+import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
+import tv.quaint.storage.resources.databases.processing.mongo.data.defined.DefinedMongoData;
 
-import java.util.concurrent.ConcurrentSkipListMap;
-
-public class MongoResource extends StorageResource<Document> {
-    @Getter @Setter
-    DatabaseConfig databaseConfig;
-    @Getter @Setter
-    String collectionName;
-    @Getter @Setter
-    Document sheet;
-
-    public MongoResource(DatabaseConfig databaseConfig, String collectionName, String discriminatorKey,  Object discriminator) {
-        super(Document.class, StorageUtils.parseDotsMongo(discriminatorKey), discriminator);
-        this.databaseConfig = databaseConfig;
-        this.collectionName = collectionName;
-        this.sheet = new Document(StorageUtils.parseDotsMongo(discriminatorKey), discriminator);
-        this.reloadResource(true);
-    }
-
-    public Document get() {
-        return this.databaseConfig.mongoConnection().get(this.collectionName, this.getWhere());
-    }
-
-    public void push() {
-        this.databaseConfig.mongoConnection().push(this.collectionName, this.getWhere(), this.sheet);
-    }
-
-    @Override
-    public void delete() {
-        this.databaseConfig.mongoConnection().delete(this.collectionName, this.getWhere());
-    }
-
-    @Override
-    public boolean exists() {
-        return this.databaseConfig.mongoConnection().exists(this.collectionName, this.getWhere());
-    }
-
-    @Override
-    public <O> O get(String key, Class<O> def) {
-        try {
-            O object = this.sheet.get(key, def);
-
-            if (! def.isInstance(object)) return null;
-
-            return object;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+public class MongoResource extends DatabaseResource<MongoRow, MongoConnection> {
+    public MongoResource(String discriminatorKey, String discriminator, String table, MongoRow row, MongoConnection connection) {
+        super(discriminatorKey, discriminator, table, row, connection);
     }
 
     @Override
     public void continueReloadResource() {
-        this.sheet = this.get();
-        if (this.sheet == null) return;
-        this.getMap().putAll(this.sheet);
+        setRow(getConnection().getRow(getTable(), getDiscriminatorKey(), getDiscriminator()));
     }
 
     @Override
     public void write(String key, Object value) {
-        key = StorageUtils.parseDotsMongo(key);
-        if (this.sheet == null) this.sheet = new Document(StorageUtils.parseDotsMongo(getDiscriminatorKey()), getDiscriminator());
+        AbstractMongoData<?> data = DefinedMongoData.getFromType(MongoSchematic.MongoType.fromObject(value), value);
+        if (data == null) return;
 
-        this.sheet.put(key, value);
-
-        this.sortDocument();
+        getConnection().replace(getTable(), getDiscriminatorKey(), getDiscriminator(), key, data);
     }
 
     @Override
     public <O> O getOrSetDefault(String key, O value) {
-        key = StorageUtils.parseDotsMongo(key);
-        if (this.sheet == null) {
+        if (get(key, value.getClass()) == null) {
             write(key, value);
         }
-        Object t = this.sheet.get(key);
-        O thing = this.sheet.get(key, value);
-        if (t == null) {
-            write(key, thing);
-        }
-        return thing;
+
+        O o = (O) get(key, value.getClass());
+
+        return o == null ? value : o;
     }
 
-    public Document getWhere() {
-        return StorageUtils.getWhere(getDiscriminatorKey(), getDiscriminator());
+    @Override
+    public void push() {
+        getConnection().replace(getTable(), getDiscriminatorKey(), getDiscriminator(), getRow().asDocument());
     }
 
-    public void sortDocument() {
-        ConcurrentSkipListMap<String, Object> toSort = new ConcurrentSkipListMap<>(sheet);
-        this.sheet = new Document(toSort);
+    @Override
+    public void delete() {
+        getConnection().delete(getTable(), getDiscriminatorKey(), getDiscriminator());
+    }
+
+    @Override
+    public boolean exists() {
+        return getConnection().exists(getTable(), getDiscriminatorKey(), getDiscriminator());
     }
 }
