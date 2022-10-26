@@ -69,7 +69,7 @@ public interface SpecificConnection<T, D extends DBDataLike<?>, C extends DBColu
      * @param data             The data to use for the new row.
      * @return The row as the {@link R}.
      */
-    R createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, D> data);
+     R createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, D> data);
 
     /**
      * Creates a row as a(n) {@link R} using a table name.

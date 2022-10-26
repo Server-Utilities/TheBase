@@ -1,18 +1,23 @@
 package tv.quaint.storage.resources.databases;
 
+import com.zaxxer.hikari.HikariDataSource;
 import tv.quaint.storage.resources.databases.connections.SQLConnection;
 import tv.quaint.storage.resources.databases.processing.sql.SQLSchematic;
 import tv.quaint.storage.resources.databases.processing.sql.data.AbstractSQLData;
+import tv.quaint.storage.resources.databases.processing.sql.data.SQLColumn;
+import tv.quaint.storage.resources.databases.processing.sql.data.SQLDataLike;
 import tv.quaint.storage.resources.databases.processing.sql.data.SQLRow;
 import tv.quaint.storage.resources.databases.processing.sql.data.defined.DefinedSQLData;
 
-public class MySQLResource extends DatabaseResource<SQLRow, SQLConnection> {
+import java.util.concurrent.ConcurrentSkipListMap;
+
+public class MySQLResource extends DatabaseResource<HikariDataSource, SQLDataLike<?>, SQLColumn, SQLRow, SQLConnection> {
     public MySQLResource(String discriminatorKey, String discriminator, String table, SQLRow row, SQLConnection connection) {
         super(discriminatorKey, discriminator, table, row, connection);
     }
 
-    public MySQLResource(String discriminatorKey, String discriminator, String table, SQLConnection connection) {
-        super(discriminatorKey, discriminator, table, connection);
+    public MySQLResource(String discriminatorKey, String discriminator, String table, ConcurrentSkipListMap<String, SQLDataLike<?>> schematic, SQLConnection connection) {
+        super(discriminatorKey, discriminator, table, schematic, connection);
     }
 
     @Override

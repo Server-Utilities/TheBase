@@ -19,6 +19,7 @@ import tv.quaint.storage.resources.databases.processing.sql.data.SQLRow;
 import tv.quaint.storage.resources.databases.processing.sql.data.defined.DefinedSQLData;
 
 import java.sql.ResultSet;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -121,7 +122,6 @@ public class SQLConnection implements SQLSpecific {
         }
     }
 
-    @Override
     public SQLRow createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, SQLDataLike<?>> data) {
         String s = getAsInsert(table, data);
         executeUpdate(s);

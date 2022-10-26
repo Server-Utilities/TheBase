@@ -4,9 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 import tv.quaint.storage.resources.StorageResource;
 import tv.quaint.storage.resources.databases.differentiating.SpecificConnection;
+import tv.quaint.storage.resources.databases.processing.interfacing.DBColumn;
+import tv.quaint.storage.resources.databases.processing.interfacing.DBDataLike;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBRow;
 
-public abstract class DatabaseResource<R extends DBRow<?, ?>, M extends SpecificConnection<?, ?, ?, ?>> extends StorageResource<R> {
+import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListMap;
+
+public abstract class DatabaseResource<T, D extends DBDataLike<?>, C extends DBColumn, R extends DBRow<C, D>, M extends SpecificConnection<T, D, C, R>> extends StorageResource<R> {
     @Getter @Setter
     private M connection;
     @Getter @Setter
@@ -22,11 +27,8 @@ public abstract class DatabaseResource<R extends DBRow<?, ?>, M extends Specific
         this.table = table;
     }
 
-    public DatabaseResource(String discriminatorKey, String discriminator, String table, M connection) {
-        super(discriminatorKey, discriminator);
-
-        this.connection = connection;
-        this.table = table;
+    public DatabaseResource(String discriminatorKey, String discriminator, String table, ConcurrentSkipListMap<String, D> schematic, M connection) {
+        this(discriminatorKey, discriminator, table, connection.createRow(table, discriminatorKey, discriminator, schematic), connection);
     }
 
     @Override
