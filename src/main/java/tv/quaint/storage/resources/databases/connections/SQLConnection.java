@@ -33,6 +33,18 @@ public class SQLConnection implements SQLSpecific {
     public SQLConnection(DatabaseConfig config, StorageUtils.SupportedSQLType type) {
         this.type = type;
         this.config = config;
+        ensureSqliteFileExists();
+    }
+
+    /**
+     * If the database is SQLite, this will create a new .db file in the specified directory if it doesn't exist.
+     */
+    public void ensureSqliteFileExists() {
+        if (! type.equals(StorageUtils.SupportedSQLType.SQLITE)) return;
+
+        String path = config.getDatabase();
+        if (! path.endsWith(".db")) path += ".db";
+        StorageUtils.ensureFileExists(path);
     }
 
     /**

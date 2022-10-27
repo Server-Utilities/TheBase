@@ -111,4 +111,15 @@ public class StorageUtils {
             }
         }
     }
+
+    public static void ensureFileExists(String path) {
+        File file = new File(path);
+        if (! file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
