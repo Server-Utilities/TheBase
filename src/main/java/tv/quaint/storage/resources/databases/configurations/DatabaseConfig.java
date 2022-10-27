@@ -43,7 +43,7 @@ public class DatabaseConfig {
     /**
      * Creates a new {@link SpecificConnection} from this {@link DatabaseConfig}.
      */
-    public SpecificConnection<?, ?, ?, ?> createConnection() {
+    public SpecificConnection<?, ?, ?, ?, ?> createConnection() {
         switch (this.type) {
             case MONGO:
                 return new MongoConnection(this);

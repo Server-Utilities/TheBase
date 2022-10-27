@@ -74,7 +74,7 @@ public class MongoConnection implements MongoSpecific {
 
     @Override
     public MongoRow getRow(MongoCollection<Document> collection, String discriminatorKey, String discriminator) {
-        return getRow(pull(collection, discriminatorKey, discriminator));
+        return getRow(collection.getNamespace().getCollectionName(), pull(collection, discriminatorKey, discriminator));
     }
 
     @Override
@@ -83,25 +83,19 @@ public class MongoConnection implements MongoSpecific {
     }
 
     @Override
-    public MongoRow createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, MongoDataLike<?>> data) {
-        Document document = new Document(discriminatorKey, discriminator);
-        document.putAll(data);
-        getCollection(table).insertOne(document);
+    public MongoRow createRow(String table, String discriminatorKey, String discriminator, MongoSchematic schematic) {
+        createCollection(schematic);
 
         return getRow(table, discriminatorKey, discriminator);
     }
 
     @Override
     public MongoRow createRow(String table, String discriminatorKey, String discriminator, MongoRow row) {
-        ConcurrentSkipListMap<String, MongoDataLike<?>> r = new ConcurrentSkipListMap<>();
-
-        row.getMap().forEach((k, v) -> r.put(k.getName(), v));
-
-        return createRow(table, discriminatorKey, discriminator, r);
+        return createRow(table, discriminatorKey, discriminator, row.getMongoSchematic(true));
     }
 
     @Override
-    public MongoRow getRow(Document document) {
+    public MongoRow getRow(String collectionName, Document document) {
         ConcurrentSkipListMap<MongoColumn, MongoDataLike<?>> columns = new ConcurrentSkipListMap<>();
         document.forEach((key, value) -> {
             MongoSchematic.MongoType type = MongoSchematic.MongoType.fromObject(value);
@@ -117,7 +111,7 @@ public class MongoConnection implements MongoSpecific {
             atomicInteger.incrementAndGet();
         });
 
-        return new MongoRow(columnArray, dataArray);
+        return new MongoRow(collectionName, columnArray, dataArray);
     }
 
     @Override

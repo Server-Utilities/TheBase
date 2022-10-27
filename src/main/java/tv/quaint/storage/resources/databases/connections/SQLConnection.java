@@ -47,6 +47,7 @@ public class SQLConnection implements SQLSpecific {
             connection = DriverManager.getConnection(link);
             Statement statement = connection.createStatement();
             statement.execute("SELECT 1");
+//            statement.executeUpdate("CREATE DATABASE IF NOT EXISTS " + config.getDatabase() + ";");
             statement.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,7 +123,6 @@ public class SQLConnection implements SQLSpecific {
         try {
             ResultSet set = pull(table, discriminatorKey, discriminator);
             ConcurrentSkipListMap<SQLColumn, AbstractSQLData<?>> columns = new ConcurrentSkipListMap<>();
-            // iterate through the result set and add each row to the columns map
             for (int i = 1; i <= set.getMetaData().getColumnCount(); i++) {
                 Object object = set.getObject(i);
                 columns.put(
@@ -141,27 +141,22 @@ public class SQLConnection implements SQLSpecific {
             });
 
             set.close();
-            return new SQLRow(columnArray, data);
+            return new SQLRow(table, columnArray, data);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public SQLRow createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, SQLDataLike<?>> data) {
-        String s = getAsInsert(table, data);
-        executeUpdate(s);
+    public SQLRow createRow(String table, String discriminatorKey, String discriminator, SQLSchematic schematic) {
+        executeUpdate(schematic.getCreateTableQuery());
 
         return getRow(table, discriminatorKey, discriminator);
     }
 
     @Override
     public SQLRow createRow(String table, String discriminatorKey, String discriminator, SQLRow row) {
-        ConcurrentSkipListMap<String, SQLDataLike<?>> r = new ConcurrentSkipListMap<>();
-
-        row.getMap().forEach((k, v) -> r.put(k.getName(), v));
-
-        return createRow(table, discriminatorKey, discriminator, r);
+        return createRow(table, discriminatorKey, discriminator, row.getSQLSchematic(true));
     }
 
     @Override

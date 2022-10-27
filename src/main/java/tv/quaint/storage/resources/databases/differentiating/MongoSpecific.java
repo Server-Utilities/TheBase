@@ -9,7 +9,7 @@ import tv.quaint.storage.resources.databases.processing.mongo.data.MongoColumn;
 import tv.quaint.storage.resources.databases.processing.mongo.data.MongoDataLike;
 import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
 
-public interface MongoSpecific extends SpecificConnection<MongoClient, MongoDataLike<?>, MongoColumn, MongoRow> {
+public interface MongoSpecific extends SpecificConnection<MongoClient, MongoDataLike<?>, MongoColumn, MongoRow, MongoSchematic> {
     /**
      * Replaces an object in the database.
      */
@@ -58,7 +58,7 @@ public interface MongoSpecific extends SpecificConnection<MongoClient, MongoData
     /**
      * Gets a document as a {@link MongoRow} using said document.
      */
-    MongoRow getRow(Document document);
+    MongoRow getRow(String collectionName, Document document);
 
     /**
      * Creates a collection if it doesn't exist.

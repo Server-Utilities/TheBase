@@ -2,6 +2,7 @@ package tv.quaint.storage.resources.databases.differentiating;
 
 import org.bson.Document;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
+import tv.quaint.storage.resources.databases.processing.DBSchematic;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBColumn;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBDataLike;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBRow;
@@ -10,7 +11,7 @@ import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public interface SpecificConnection<T, D extends DBDataLike<?>, C extends DBColumn, R extends DBRow<C, D>> {
+public interface SpecificConnection<T, D extends DBDataLike<?>, C extends DBColumn, R extends DBRow<C, D>, S extends DBSchematic<C>> {
     /**
      * Creates a connection defined by {@link T}.
      * Note: All objects implementing this interface must have a constructor with a {@link DatabaseConfig}.
@@ -66,10 +67,10 @@ public interface SpecificConnection<T, D extends DBDataLike<?>, C extends DBColu
      * @param table            The table to create the row on.
      * @param discriminatorKey The discriminator key to use.
      * @param discriminator    The discriminator to use.
-     * @param data             The data to use for the new row.
+     * @param schematic The schematic to use for the new row.
      * @return The row as the {@link R}.
      */
-     R createRow(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, D> data);
+     R createRow(String table, String discriminatorKey, String discriminator, S schematic);
 
     /**
      * Creates a row as a(n) {@link R} using a table name.

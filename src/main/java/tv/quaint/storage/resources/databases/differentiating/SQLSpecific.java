@@ -10,7 +10,7 @@ import tv.quaint.storage.resources.databases.processing.sql.data.SQLRow;
 import java.sql.ResultSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public interface SQLSpecific extends SpecificConnection<HikariDataSource, SQLDataLike<?>, SQLColumn, SQLRow> {
+public interface SQLSpecific extends SpecificConnection<HikariDataSource, SQLDataLike<?>, SQLColumn, SQLRow, SQLSchematic> {
     /**
      * Replaces an object in the database.
      */

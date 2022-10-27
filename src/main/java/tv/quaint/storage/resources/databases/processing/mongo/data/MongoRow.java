@@ -3,9 +3,12 @@ package tv.quaint.storage.resources.databases.processing.mongo.data;
 import lombok.Getter;
 import org.bson.Document;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBRow;
+import tv.quaint.storage.resources.databases.processing.mongo.MongoSchematic;
+import tv.quaint.storage.resources.databases.processing.mongo.data.defined.DefinedMongoData;
 
 import java.util.Date;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -16,17 +19,46 @@ public class MongoRow implements Comparable<MongoRow>, DBRow<MongoColumn, MongoD
     private final Date accessed;
     @Getter
     private final ConcurrentSkipListMap<MongoColumn, MongoDataLike<?>> map = new ConcurrentSkipListMap<>();
+    @Getter
+    private final String tableName;
+    public MongoSchematic schematic = null;
 
-    public MongoRow(MongoColumn[] columns, MongoDataLike<?>[] data) {
+    public MongoSchematic getMongoSchematic(boolean set) {
+        if (schematic != null) {
+            return schematic;
+        }
+
+        MongoSchematic schematic = new MongoSchematic(tableName);
+        schematic.setColumns(new ConcurrentSkipListSet<>(map.keySet()));
+        if (set) {
+            this.schematic = schematic;
+        }
+        return schematic;
+    }
+
+    public MongoSchematic getMongoSchematic() {
+        return getMongoSchematic(false);
+    }
+
+    public MongoRow(MongoSchematic schematic) {
+        this.accessed = new Date();
+        this.tableName = schematic.getTableFullName();
+        this.schematic = schematic;
+        schematic.getColumnsByIndex().forEach((index, column) -> map.put(column, DefinedMongoData.getFromType(column.getType(), null)));
+    }
+
+    public MongoRow(String tableName, MongoColumn[] columns, MongoDataLike<?>[] data) {
         accessed = new Date();
         for (int i = 0; i < columns.length; i++) {
             map.put(columns[i], data[i]);
         }
+        this.tableName = tableName;
     }
 
-    public MongoRow(ConcurrentSkipListMap<MongoColumn, MongoDataLike<?>> map) {
+    public MongoRow(String tableName, ConcurrentSkipListMap<MongoColumn, MongoDataLike<?>> map) {
         accessed = new Date();
         this.map.putAll(map);
+        this.tableName = tableName;
     }
 
     public Document asDocument() {

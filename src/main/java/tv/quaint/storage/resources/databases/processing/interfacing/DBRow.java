@@ -4,6 +4,11 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public interface DBRow<C extends DBColumn, V extends DBDataLike<?>> {
     /**
+     * Gets the name of the table this row is in.
+     */
+    String getTableName();
+
+    /**
      * Gets the value of the column.
      *
      * @param column The column to get the value of.

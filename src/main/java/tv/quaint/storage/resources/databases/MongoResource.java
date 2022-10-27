@@ -11,13 +11,13 @@ import tv.quaint.storage.resources.databases.processing.mongo.data.defined.Defin
 
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public class MongoResource extends DatabaseResource<MongoClient, MongoDataLike<?>, MongoColumn, MongoRow, MongoConnection> {
+public class MongoResource extends DatabaseResource<MongoClient, MongoDataLike<?>, MongoColumn, MongoRow, MongoSchematic, MongoConnection> {
     public MongoResource(String discriminatorKey, String discriminator, String table, MongoRow row, MongoConnection connection) {
         super(discriminatorKey, discriminator, table, row, connection);
     }
 
-    public MongoResource(String discriminatorKey, String discriminator, String table, ConcurrentSkipListMap<String, MongoDataLike<?>> schematic, MongoConnection connection) {
-        super(discriminatorKey, discriminator, table, schematic, connection);
+    public MongoResource(String discriminatorKey, String discriminator, String table, MongoSchematic schematic, MongoConnection connection) {
+        super(discriminatorKey, discriminator, table, new MongoRow(schematic), connection);
     }
 
     @Override

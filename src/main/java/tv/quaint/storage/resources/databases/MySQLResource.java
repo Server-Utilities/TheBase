@@ -11,13 +11,13 @@ import tv.quaint.storage.resources.databases.processing.sql.data.defined.Defined
 
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public class MySQLResource extends DatabaseResource<HikariDataSource, SQLDataLike<?>, SQLColumn, SQLRow, SQLConnection> {
+public class MySQLResource extends DatabaseResource<HikariDataSource, SQLDataLike<?>, SQLColumn, SQLRow, SQLSchematic, SQLConnection> {
     public MySQLResource(String discriminatorKey, String discriminator, String table, SQLRow row, SQLConnection connection) {
         super(discriminatorKey, discriminator, table, row, connection);
     }
 
-    public MySQLResource(String discriminatorKey, String discriminator, String table, ConcurrentSkipListMap<String, SQLDataLike<?>> schematic, SQLConnection connection) {
-        super(discriminatorKey, discriminator, table, schematic, connection);
+    public MySQLResource(String discriminatorKey, String discriminator, String table, SQLSchematic schematic, SQLConnection connection) {
+        super(discriminatorKey, discriminator, table, new SQLRow(schematic), connection);
     }
 
     @Override

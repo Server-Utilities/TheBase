@@ -1,13 +1,18 @@
 package tv.quaint.storage.resources.databases.processing.sql.data;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import tv.quaint.storage.resources.databases.processing.interfacing.DBRow;
 import tv.quaint.storage.resources.databases.processing.sql.SQLSchematic;
+import tv.quaint.storage.resources.databases.processing.sql.data.defined.DefinedSQLData;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Represents a row of data ({@link SQLColumn}s) in an SQL table.
@@ -17,17 +22,48 @@ public class SQLRow implements Comparable<SQLRow>, DBRow<SQLColumn, SQLDataLike<
     private final Date accessed;
     @Getter
     private final ConcurrentSkipListMap<SQLColumn, SQLDataLike<?>> map = new ConcurrentSkipListMap<>();
+    @Getter
+    private final String tableName;
 
-    public SQLRow(SQLColumn[] columns, SQLDataLike<?>[] data) {
+    @Setter
+    private SQLSchematic schematic = null;
+
+    public SQLSchematic getSQLSchematic(boolean set) {
+        if (schematic != null) {
+            return schematic;
+        }
+
+        SQLSchematic schematic = new SQLSchematic(tableName);
+        schematic.setColumns(new ConcurrentSkipListSet<>(Arrays.stream(getColumns()).collect(Collectors.toList())));
+        if (set) {
+            this.schematic = schematic;
+        }
+        return schematic;
+    }
+
+    public SQLSchematic getSQLSchematic() {
+        return getSQLSchematic(false);
+    }
+
+    public SQLRow(SQLSchematic schematic) {
+        this.accessed = new Date();
+        this.tableName = schematic.getTableFullName();
+        this.schematic = schematic;
+        schematic.getColumnsByIndex().forEach((index, column) -> map.put(column, DefinedSQLData.getFromType(column.getType(), null)));
+    }
+
+    public SQLRow(String tableName, SQLColumn[] columns, SQLDataLike<?>[] data) {
         accessed = new Date();
         for (int i = 0; i < columns.length; i++) {
             map.put(columns[i], data[i]);
         }
+        this.tableName = tableName;
     }
 
-    public SQLRow(ConcurrentSkipListMap<SQLColumn, SQLDataLike<?>> map) {
+    public SQLRow(String tableName, ConcurrentSkipListMap<SQLColumn, SQLDataLike<?>> map) {
         accessed = new Date();
         this.map.putAll(map);
+        this.tableName = tableName;
     }
 
     @Override

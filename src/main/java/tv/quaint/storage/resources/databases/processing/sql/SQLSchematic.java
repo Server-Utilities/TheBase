@@ -2,6 +2,7 @@ package tv.quaint.storage.resources.databases.processing.sql;
 
 import lombok.Getter;
 import lombok.Setter;
+import tv.quaint.storage.resources.databases.processing.DBSchematic;
 import tv.quaint.storage.resources.databases.processing.interfacing.DataLikeType;
 import tv.quaint.storage.resources.databases.processing.sql.data.SQLColumn;
 
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * A schematic for creating an SQL table. Used to help an SQLPage.
  * @author Quaint
  */
-public class SQLSchematic {
+public class SQLSchematic implements DBSchematic<SQLColumn> {
     public enum SQLType implements DataLikeType {
         VARCHAR(255),
         TEXT(65535),
@@ -132,6 +133,61 @@ public class SQLSchematic {
             }
         });
         return atomicReference.get();
+    }
+
+    public int getColumnIndex(String columnName) {
+        int i = 0;
+        for (SQLColumn column : columns) {
+            if (column.getName().equals(columnName)) return i;
+            i++;
+        }
+        return -1;
+    }
+
+    public int getColumnIndex(SQLColumn column) {
+        int i = 0;
+        for (SQLColumn column1 : columns) {
+            if (column1.equals(column)) return i;
+            i++;
+        }
+        return -1;
+    }
+
+    public int getColumnCount() {
+        return columns.size();
+    }
+
+    public boolean hasColumn(String columnName) {
+        return getColumnIndex(columnName) != -1;
+    }
+
+    public boolean hasColumn(SQLColumn column) {
+        return getColumnIndex(column) != -1;
+    }
+
+    public boolean hasColumn(int columnIndex) {
+        return columnIndex >= 0 && columnIndex < getColumnCount();
+    }
+
+    public boolean hasColumns(String... columnNames) {
+        for (String columnName : columnNames) {
+            if (!hasColumn(columnName)) return false;
+        }
+        return true;
+    }
+
+    public boolean hasColumns(SQLColumn... columns) {
+        for (SQLColumn column : columns) {
+            if (!hasColumn(column)) return false;
+        }
+        return true;
+    }
+
+    public boolean hasColumns(int... columnIndices) {
+        for (int columnIndex : columnIndices) {
+            if (!hasColumn(columnIndex)) return false;
+        }
+        return true;
     }
 
     public String getCreateTableQuery() {
