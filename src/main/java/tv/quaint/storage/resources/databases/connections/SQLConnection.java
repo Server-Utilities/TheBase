@@ -8,9 +8,6 @@ import org.bson.Document;
 import tv.quaint.storage.StorageUtils;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 import tv.quaint.storage.resources.databases.differentiating.SQLSpecific;
-import tv.quaint.storage.resources.databases.processing.interfacing.DBDataLike;
-import tv.quaint.storage.resources.databases.processing.mongo.data.MongoDataLike;
-import tv.quaint.storage.resources.databases.processing.mongo.data.MongoRow;
 import tv.quaint.storage.resources.databases.processing.sql.SQLSchematic;
 import tv.quaint.storage.resources.databases.processing.sql.data.AbstractSQLData;
 import tv.quaint.storage.resources.databases.processing.sql.data.SQLColumn;
@@ -18,8 +15,10 @@ import tv.quaint.storage.resources.databases.processing.sql.data.SQLDataLike;
 import tv.quaint.storage.resources.databases.processing.sql.data.SQLRow;
 import tv.quaint.storage.resources.databases.processing.sql.data.defined.DefinedSQLData;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.util.Map;
+import java.sql.Statement;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,7 +32,7 @@ public class SQLConnection implements SQLSpecific {
     public SQLConnection(DatabaseConfig config, StorageUtils.SupportedSQLType type) {
         this.type = type;
         this.config = config;
-        ensureSqliteFileExists();
+        if (type.equals(StorageUtils.SupportedSQLType.SQLITE)) ensureSqliteFileExists();
     }
 
     /**
@@ -42,9 +41,24 @@ public class SQLConnection implements SQLSpecific {
     public void ensureSqliteFileExists() {
         if (! type.equals(StorageUtils.SupportedSQLType.SQLITE)) return;
 
-        String path = config.getDatabase();
-        if (! path.endsWith(".db")) path += ".db";
-        StorageUtils.ensureFileExists(path);
+        String link = config.getLink();
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(link);
+            Statement statement = connection.createStatement();
+            statement.execute("SELECT 1");
+            statement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
