@@ -1,10 +1,12 @@
-package tv.quaint.storage.resources.flat;
+package tv.quaint.storage.datastores;
 
 import de.leonhard.storage.*;
 import de.leonhard.storage.internal.FlatFile;
 import lombok.Getter;
 import lombok.Setter;
-import tv.quaint.storage.resources.StorageResource;
+import tv.quaint.objects.MappableObject;
+import tv.quaint.objects.handling.derived.IModifierEventable;
+import tv.quaint.storage.resources.flat.FlatFileResource;
 
 import java.io.File;
 import java.io.InputStream;
@@ -13,8 +15,9 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
-    @Getter @Setter
+public abstract class SimpleFlatDataStore<T extends FlatFile, O extends MappableObject> extends SimpleDataStore<T, O> {
+    @Getter
+    @Setter
     T resource;
     @Getter
     final String fileName;
@@ -25,15 +28,19 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
     @Getter
     final boolean selfContained;
 
-    public FlatFileResource(Class<T> resourceType, String fileName, File parentDirectory, boolean selfContained) {
-        super(resourceType, "name", fileName);
-        
+    public SimpleFlatDataStore(Class<T> resourceType, O mappableObject, String fileName, File parentDirectory, boolean selfContained) {
+        super(resourceType, mappableObject);
+
         this.fileName = fileName;
         this.parentDirectory = parentDirectory;
         this.selfFile = new File(parentDirectory, fileName);
         this.selfContained = selfContained;
 
         reloadResource(true);
+    }
+
+    public SimpleFlatDataStore(Class<T> resourceType, O mappableObject, String fileName, IModifierEventable eventable, boolean selfContained) {
+        this(resourceType, mappableObject, fileName, eventable.getDataFolder(), selfContained);
     }
 
     public T load(boolean selfContained) {

@@ -1,29 +1,18 @@
 package tv.quaint.storage.datastores;
 
-import de.leonhard.storage.internal.FlatFile;
+import lombok.Getter;
+import lombok.Setter;
+import tv.quaint.objects.MappableObject;
+import tv.quaint.objects.handling.IEventable;
 import tv.quaint.objects.handling.derived.IModifierEventable;
-import tv.quaint.storage.resources.flat.FlatFileResource;
+import tv.quaint.storage.resources.StorageResource;
 
-import java.io.File;
+public abstract class SimpleDataStore<T, O extends MappableObject> extends StorageResource<T> implements ISimpleDataStore<O> {
+    @Getter @Setter
+    private O mappableObject;
 
-public abstract class SimpleDataStore<T extends FlatFile> extends FlatFileResource<T> implements ISimpleDataStore {
-    public SimpleDataStore(Class<T> resourceType, String fileName, File parentDirectory, boolean selfContained) {
-        super(resourceType, fileName, parentDirectory, selfContained);
-        init();
-    }
-
-    public SimpleDataStore(Class<T> resourceType, String fileName, IModifierEventable eventable, boolean selfContained) {
-        this(resourceType, fileName, eventable.getDataFolder(), selfContained);
-        init();
-    }
-
-    public SimpleDataStore(Class<T> resourceType, String fileName, File parentDirectory) {
-        this(resourceType, fileName, parentDirectory, false);
-        init();
-    }
-
-    public SimpleDataStore(Class<T> resourceType, String fileName, IModifierEventable eventable) {
-        this(resourceType, fileName, eventable, false);
+    public SimpleDataStore(Class<T> resourceType, O mappableObject) {
+        super(resourceType, mappableObject.getDiscriminatorKey(), mappableObject.getDiscriminatorValue());
         init();
     }
 
@@ -56,30 +45,30 @@ public abstract class SimpleDataStore<T extends FlatFile> extends FlatFileResour
     public abstract boolean onExists();
 
     @Override
-    public void init(String identifer) {
-        onInit();
+    public void init(String identifier) {
+        onInit(identifier);
     }
 
-    public abstract void onInit(String identifer);
+    public abstract void onInit(String identifier);
 
     @Override
-    public void save(String identifer) {
-        onSave();
+    public void save(String identifier) {
+        onSave(identifier);
     }
 
-    public abstract void onSave(String identifer);
+    public abstract void onSave(String identifier);
 
     @Override
-    public void delete(String identifer) {
-        onDelete();
+    public void delete(String identifier) {
+        onDelete(identifier);
     }
 
-    public abstract void onDelete(String identifer);
+    public abstract void onDelete(String identifier);
 
     @Override
-    public boolean exists(String identifer) {
-        return onExists();
+    public boolean exists(String identifier) {
+        return onExists(identifier);
     }
 
-    public abstract boolean onExists(String identifer);
+    public abstract boolean onExists(String identifier);
 }

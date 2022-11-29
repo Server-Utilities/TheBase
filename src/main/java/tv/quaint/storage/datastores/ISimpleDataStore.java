@@ -1,13 +1,18 @@
 package tv.quaint.storage.datastores;
 
+import tv.quaint.objects.MappableObject;
 import tv.quaint.storage.documents.ISimpleDocument;
 
-public interface ISimpleDataStore extends ISimpleDocument {
-    void init(String identifier);
+public interface ISimpleDataStore<O extends MappableObject> extends ISimpleDocument {
+    public O getMappableObject();
 
-    void save(String identifier);
+    public void setMappableObject(O object);
 
-    void delete(String identifier);
+    public void init(String identifier);
 
-    boolean exists(String identifier);
+    public void save(String identifier);
+
+    public void delete(String identifier);
+
+    public boolean exists(String identifier);
 }

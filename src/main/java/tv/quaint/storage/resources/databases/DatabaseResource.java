@@ -3,33 +3,24 @@ package tv.quaint.storage.resources.databases;
 import lombok.Getter;
 import lombok.Setter;
 import tv.quaint.storage.resources.StorageResource;
-import tv.quaint.storage.resources.databases.differentiating.SpecificConnection;
-import tv.quaint.storage.resources.databases.processing.DBSchematic;
-import tv.quaint.storage.resources.databases.processing.interfacing.DBColumn;
-import tv.quaint.storage.resources.databases.processing.interfacing.DBDataLike;
-import tv.quaint.storage.resources.databases.processing.interfacing.DBRow;
+import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
+import tv.quaint.storage.resources.databases.processing.AbstractDatabaseValue;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
-public abstract class DatabaseResource<T, D extends DBDataLike<?>, C extends DBColumn, R extends DBRow<C, D>, S extends DBSchematic<C>, M extends SpecificConnection<T, D, C, R, S>> extends StorageResource<R> {
+public abstract class DatabaseResource<P> extends StorageResource<P> {
     @Getter @Setter
-    private M connection;
-    @Getter @Setter
-    private R row;
+    private ConcurrentSkipListSet<AbstractDatabaseValue<?>> values;
     @Getter @Setter
     private String table;
+    @Getter @Setter
+    private DatabaseConfig config;
 
-    public DatabaseResource(String discriminatorKey, String discriminator, String table, R row, M connection) {
-        super((Class<R>) row.getClass(), discriminatorKey, discriminator);
-
-        this.connection = connection;
-        this.row = row;
+    public DatabaseResource(Class<P> resourceType, String discriminatorKey, String discriminator, String table, DatabaseConfig config) {
+        super(resourceType, discriminatorKey, discriminator);
         this.table = table;
-    }
-
-    public DatabaseResource(String discriminatorKey, String discriminator, String table, S schematic, M connection) {
-        this(discriminatorKey, discriminator, table, connection.createRow(table, discriminatorKey, discriminator, schematic), connection);
+        this.config = config;
     }
 
     @Override
@@ -37,13 +28,43 @@ public abstract class DatabaseResource<T, D extends DBDataLike<?>, C extends DBC
         return (String) super.getDiscriminator();
     }
 
+    public ConcurrentSkipListMap<String, ?> getMappedValues() {
+        ConcurrentSkipListMap<String, Object> map = new ConcurrentSkipListMap<>();
+
+        for (AbstractDatabaseValue<?> value : this.values) {
+            map.put(value.getKey(), value.getValue());
+        }
+
+        return map;
+    }
+
     @Override
     public <O> O get(String key, Class<O> def) {
         try {
-            return (O) this.row.getColumn(key);
+            return (O) getMappedValues().get(key);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public abstract P getProvider();
+
+    public abstract void createTable();
+
+    public abstract void ensureTableExists();
+
+    public abstract void insert();
+
+    public abstract void update();
+
+    @Override
+    public void push() {
+        if (! this.exists()) {
+            this.ensureTableExists();
+            this.insert();
+        } else {
+            this.update();
         }
     }
 }

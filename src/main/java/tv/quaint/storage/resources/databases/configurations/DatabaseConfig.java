@@ -4,9 +4,6 @@ import de.leonhard.storage.sections.FlatFileSection;
 import lombok.Getter;
 import lombok.Setter;
 import tv.quaint.storage.StorageUtils;
-import tv.quaint.storage.resources.databases.connections.MongoConnection;
-import tv.quaint.storage.resources.databases.connections.SQLConnection;
-import tv.quaint.storage.resources.databases.differentiating.SpecificConnection;
 
 public class DatabaseConfig {
     @Getter @Setter
@@ -38,22 +35,6 @@ public class DatabaseConfig {
         this.database = database;
         this.tablePrefix = tablePrefix;
         this.options = options;
-    }
-
-    /**
-     * Creates a new {@link SpecificConnection} from this {@link DatabaseConfig}.
-     */
-    public SpecificConnection<?, ?, ?, ?, ?> createConnection() {
-        switch (this.type) {
-            case MONGO:
-                return new MongoConnection(this);
-            case MYSQL:
-                return new SQLConnection(this, StorageUtils.SupportedSQLType.MYSQL);
-            case SQLITE:
-                return new SQLConnection(this, StorageUtils.SupportedSQLType.SQLITE);
-        }
-
-        return null;
     }
 
     /**

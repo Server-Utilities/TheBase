@@ -1,11 +1,11 @@
 package tv.quaint.storage.documents;
 
 public interface ISimpleDocument {
-    void init();
+    public void init();
 
-    void save();
+    public void save();
 
-    void delete();
+    public void delete();
 
-    boolean exists();
+    public boolean exists();
 }

@@ -10,7 +10,7 @@ import java.io.File;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public abstract class SimpleDataStoreManager<T extends SimpleDataStore<?>> implements IDataStoreManager<T> {
+public abstract class SimpleDataStoreManager<T extends SimpleDataStore<?, ?>> implements IDataStoreManager<T> {
     @Getter
     final Class<T> classifier;
     @Getter

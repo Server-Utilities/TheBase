@@ -18,7 +18,11 @@ public class MatcherUtils {
         while (matcher.find()) {
             String[] strings = new String[expectedAmount];
             for (int i = 0; i < strings.length; i ++) {
-                strings[i] = matcher.group(i + 1);
+                try {
+                    strings[i] = matcher.group(i + 1);
+                } catch (IndexOutOfBoundsException e) {
+                    strings[i] = null;
+                }
             }
             groups.add(strings);
         }

@@ -62,7 +62,7 @@ public abstract class StorageResource<T> implements Comparable<StorageResource<?
 
     public abstract void continueReloadResource();
 
-    public abstract void write(String key, Object value);
+    public abstract <V> void write(String key, V value);
 
     public abstract <O> O getOrSetDefault(String key, O value);
 
@@ -102,6 +102,10 @@ public abstract class StorageResource<T> implements Comparable<StorageResource<?
 
         return r;
     }
+
+    public abstract <V> void updateSingle(String key, V value);
+
+    public abstract <V> void updateMultiple(ConcurrentSkipListMap<String, V> values);
 
     public boolean isEmpty() {
         sync(true);

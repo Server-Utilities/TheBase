@@ -1,24 +1,18 @@
 package tv.quaint.storage.datastores;
 
+import de.leonhard.storage.Json;
 import de.leonhard.storage.Toml;
+import tv.quaint.objects.MappableObject;
 import tv.quaint.objects.handling.derived.IModifierEventable;
 
 import java.io.File;
 
-public abstract class SimpleTomlDataStore extends SimpleDataStore<Toml> {
-    public SimpleTomlDataStore(String fileName, File parentDirectory, boolean selfContained) {
-        super(Toml.class, fileName, parentDirectory, selfContained);
+public abstract class SimpleTomlDataStore<O extends MappableObject> extends SimpleFlatDataStore<Toml, O> {
+    public SimpleTomlDataStore(Class<Toml> resourceType, O mappableObject, String fileName, File parentDirectory, boolean selfContained) {
+        super(resourceType, mappableObject, fileName, parentDirectory, selfContained);
     }
 
-    public SimpleTomlDataStore(String fileName, IModifierEventable eventable, boolean selfContained) {
-        super(Toml.class, fileName, eventable.getDataFolder(), selfContained);
-    }
-
-    public SimpleTomlDataStore(String fileName, File parentDirectory) {
-        super(Toml.class, fileName, parentDirectory, false);
-    }
-
-    public SimpleTomlDataStore(String fileName, IModifierEventable eventable) {
-        super(Toml.class, fileName, eventable, false);
+    public SimpleTomlDataStore(Class<Toml> resourceType, O mappableObject, String fileName, IModifierEventable eventable, boolean selfContained) {
+        super(resourceType, mappableObject, fileName, eventable, selfContained);
     }
 }
