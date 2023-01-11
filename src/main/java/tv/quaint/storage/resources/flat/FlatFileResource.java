@@ -50,7 +50,9 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
 
     public void syncMap() {
         for (String key : this.resource.keySet()) {
-            this.getMap().put(key, this.resource.get(key));
+            Object obj = this.resource.get(key);
+            if (obj == null) continue;
+            this.getMap().put(key, obj);
         }
     }
 

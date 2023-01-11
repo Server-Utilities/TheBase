@@ -11,8 +11,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public abstract class DatabaseResource<P> extends StorageResource<P> {
     @Getter @Setter
-    private ConcurrentSkipListSet<AbstractDatabaseValue<?>> values;
-    @Getter @Setter
     private String table;
     @Getter @Setter
     private DatabaseConfig config;
@@ -26,26 +24,6 @@ public abstract class DatabaseResource<P> extends StorageResource<P> {
     @Override
     public String getDiscriminator() {
         return (String) super.getDiscriminator();
-    }
-
-    public ConcurrentSkipListMap<String, ?> getMappedValues() {
-        ConcurrentSkipListMap<String, Object> map = new ConcurrentSkipListMap<>();
-
-        for (AbstractDatabaseValue<?> value : this.values) {
-            map.put(value.getKey(), value.getValue());
-        }
-
-        return map;
-    }
-
-    @Override
-    public <O> O get(String key, Class<O> def) {
-        try {
-            return (O) getMappedValues().get(key);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public abstract P getProvider();

@@ -9,7 +9,7 @@ plugins {
 apply from: "$rootDir/dependencies.gradle"
 
 group 'com.github.Server-Utilities'
-version '1.0.8'
+version '1.0.9'
 
 repositories {
     mavenLocal()
