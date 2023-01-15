@@ -1,6 +1,7 @@
 package tv.quaint.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StringUtils {
@@ -46,38 +47,36 @@ public class StringUtils {
         return strings;
     }
 
+    public static <T> T[] newEmptyArray() {
+        return (T[]) new Object[0];
+    }
+
     public static <T> T[] argsMinus(T[] array, int... indexes) {
+        List<Integer> indexesList = new ArrayList<>();
+        for (int index : indexes) {
+            indexesList.add(index);
+        }
         List<T> list = new ArrayList<>();
-        for (int i = 0; i < array.length; i++) {
-            boolean skip = false;
-            for (int index : indexes) {
-                if (i == index) {
-                    skip = true;
-                    break;
-                }
-            }
-            if (! skip) {
+        for (int i = 0; i < array.length; i ++) {
+            if (! indexesList.contains(i)) {
                 list.add(array[i]);
             }
         }
-        return list.toArray(array);
+        return list.toArray(newEmptyArray());
     }
 
     public static String[] argsMinus(String[] array, int... indexes) {
+        List<Integer> indexesList = new ArrayList<>();
+        for (int index : indexes) {
+            indexesList.add(index);
+        }
         List<String> list = new ArrayList<>();
-        for (int i = 0; i < array.length; i++) {
-            boolean skip = false;
-            for (int index : indexes) {
-                if (i == index) {
-                    skip = true;
-                    break;
-                }
-            }
-            if (! skip) {
+        for (int i = 0; i < array.length; i ++) {
+            if (! indexesList.contains(i)) {
                 list.add(array[i]);
             }
         }
-        return list.toArray(array);
+        return list.toArray(new String[0]);
     }
 
     public static <T> String argsToString(T[] args) {
@@ -104,5 +103,36 @@ public class StringUtils {
     public static String argsToStringMinus(String[] args, int... indexes) {
         String[] argsMinus = argsMinus(args, indexes);
         return argsToString(argsMinus);
+    }
+
+    public static <T> T[] argsWithoutNulls(T[] args) {
+        List<T> list = new ArrayList<>();
+        for (T arg : args) {
+            if (arg != null) {
+                list.add(arg);
+            }
+        }
+        return list.toArray(args);
+    }
+
+    public static String[] argsWithoutEmptyOrNull(String[] args) {
+        List<String> list = new ArrayList<>();
+
+        for (String arg : args) {
+            if (arg != null && ! arg.isEmpty()) {
+                list.add(arg);
+            }
+        }
+
+        return list.toArray(args);
+    }
+
+    public static String[] argsWithoutEmptyOrNullMinus(String[] args, int... indexes) {
+        String[] argsMinus = argsMinus(args, indexes);
+        return argsWithoutEmptyOrNull(argsMinus);
+    }
+
+    public static String removeNonIdentifierSafeChars(String string) {
+        return string.replaceAll("[^a-zA-Z0-9_\\-+]", "");
     }
 }
