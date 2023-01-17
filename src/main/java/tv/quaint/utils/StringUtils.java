@@ -3,6 +3,8 @@ package tv.quaint.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class StringUtils {
     public static String color(String s) {
@@ -134,5 +136,37 @@ public class StringUtils {
 
     public static String removeNonIdentifierSafeChars(String string) {
         return string.replaceAll("[^a-zA-Z0-9_\\-+]", "");
+    }
+
+    public static ConcurrentSkipListSet<String> getAsCompletion(String toComplete, String... listOfPossibilities) {
+        ConcurrentSkipListSet<String> strings = new ConcurrentSkipListSet<>();
+
+        for (String possibility : listOfPossibilities) {
+            if (possibility.toLowerCase().startsWith(toComplete.toLowerCase())) {
+                strings.add(possibility);
+            }
+        }
+
+        return strings;
+    }
+
+    public static ConcurrentSkipListSet<String> getAsCompletion(String toComplete, List<String> listOfPossibilities) {
+        return getAsCompletion(toComplete, listOfPossibilities.toArray(new String[0]));
+    }
+
+    public static ConcurrentSkipListSet<String> getAsCompletion(String toComplete, Set<String> listOfPossibilities) {
+        return getAsCompletion(toComplete, listOfPossibilities.toArray(new String[0]));
+    }
+
+    public static List<String> getAsCompletionList(String toComplete, String... listOfPossibilities) {
+        return new ArrayList<>(getAsCompletion(toComplete, listOfPossibilities));
+    }
+
+    public static List<String> getAsCompletionList(String toComplete, List<String> listOfPossibilities) {
+        return new ArrayList<>(getAsCompletion(toComplete, listOfPossibilities));
+    }
+
+    public static List<String> getAsCompletionList(String toComplete, Set<String> listOfPossibilities) {
+        return new ArrayList<>(getAsCompletion(toComplete, listOfPossibilities));
     }
 }
