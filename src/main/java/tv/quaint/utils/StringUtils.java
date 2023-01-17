@@ -1,9 +1,6 @@
 package tv.quaint.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class StringUtils {
@@ -141,6 +138,9 @@ public class StringUtils {
     public static ConcurrentSkipListSet<String> getAsCompletion(String toComplete, String... listOfPossibilities) {
         ConcurrentSkipListSet<String> strings = new ConcurrentSkipListSet<>();
 
+        if (toComplete == null) return new ConcurrentSkipListSet<>(List.of(listOfPossibilities));
+        if (toComplete.isEmpty() || toComplete.isBlank()) return new ConcurrentSkipListSet<>(List.of(listOfPossibilities));
+
         for (String possibility : listOfPossibilities) {
             if (possibility.toLowerCase().startsWith(toComplete.toLowerCase())) {
                 strings.add(possibility);
@@ -150,11 +150,7 @@ public class StringUtils {
         return strings;
     }
 
-    public static ConcurrentSkipListSet<String> getAsCompletion(String toComplete, List<String> listOfPossibilities) {
-        return getAsCompletion(toComplete, listOfPossibilities.toArray(new String[0]));
-    }
-
-    public static ConcurrentSkipListSet<String> getAsCompletion(String toComplete, Set<String> listOfPossibilities) {
+    public static ConcurrentSkipListSet<String> getAsCompletion(String toComplete, Collection<String> listOfPossibilities) {
         return getAsCompletion(toComplete, listOfPossibilities.toArray(new String[0]));
     }
 
@@ -162,11 +158,28 @@ public class StringUtils {
         return new ArrayList<>(getAsCompletion(toComplete, listOfPossibilities));
     }
 
-    public static List<String> getAsCompletionList(String toComplete, List<String> listOfPossibilities) {
+    public static List<String> getAsCompletionList(String toComplete, Collection<String> listOfPossibilities) {
         return new ArrayList<>(getAsCompletion(toComplete, listOfPossibilities));
     }
 
-    public static List<String> getAsCompletionList(String toComplete, Set<String> listOfPossibilities) {
-        return new ArrayList<>(getAsCompletion(toComplete, listOfPossibilities));
+    public static ConcurrentSkipListSet<String> getAsCompletion(String[] arguments, String... listOfPossibilities) {
+        ConcurrentSkipListSet<String> strings = new ConcurrentSkipListSet<>();
+
+        if (arguments == null) return new ConcurrentSkipListSet<>(List.of(listOfPossibilities));
+        if (arguments.length == 0) return new ConcurrentSkipListSet<>(List.of(listOfPossibilities));
+
+        return getAsCompletion(arguments[arguments.length - 1], listOfPossibilities);
+    }
+
+    public static ConcurrentSkipListSet<String> getAsCompletion(String[] arguments, Collection<String> listOfPossibilities) {
+        return getAsCompletion(arguments, listOfPossibilities.toArray(new String[0]));
+    }
+
+    public static List<String> getAsCompletionList(String[] arguments, String... listOfPossibilities) {
+        return new ArrayList<>(getAsCompletion(arguments, listOfPossibilities));
+    }
+
+    public static List<String> getAsCompletionList(String[] arguments, Collection<String> listOfPossibilities) {
+        return new ArrayList<>(getAsCompletion(arguments, listOfPossibilities));
     }
 }

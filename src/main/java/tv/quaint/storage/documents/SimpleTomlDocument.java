@@ -5,7 +5,7 @@ import tv.quaint.objects.handling.derived.IModifierEventable;
 
 import java.io.File;
 
-public abstract class SimpleTomlDocument extends SimpleDocument<Toml> {
+public abstract class SimpleTomlDocument extends SimpleFlatDocument<Toml> {
     public SimpleTomlDocument(String fileName, File parentDirectory, boolean selfContained) {
         super(Toml.class, fileName, parentDirectory, selfContained);
     }

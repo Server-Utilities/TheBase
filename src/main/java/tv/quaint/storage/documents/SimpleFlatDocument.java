@@ -6,23 +6,23 @@ import tv.quaint.storage.resources.flat.FlatFileResource;
 
 import java.io.File;
 
-public abstract class SimpleDocument<T extends FlatFile> extends FlatFileResource<T> implements ISimpleDocument {
-    public SimpleDocument(Class<T> resourceType, String fileName, File parentDirectory, boolean selfContained) {
+public abstract class SimpleFlatDocument<T extends FlatFile> extends FlatFileResource<T> implements ISimpleDocument {
+    public SimpleFlatDocument(Class<T> resourceType, String fileName, File parentDirectory, boolean selfContained) {
         super(resourceType, fileName, parentDirectory, selfContained);
         init();
     }
 
-    public SimpleDocument(Class<T> resourceType, String fileName, IModifierEventable eventable, boolean selfContained) {
+    public SimpleFlatDocument(Class<T> resourceType, String fileName, IModifierEventable eventable, boolean selfContained) {
         this(resourceType, fileName, eventable.getDataFolder(), selfContained);
         init();
     }
 
-    public SimpleDocument(Class<T> resourceType, String fileName, File parentDirectory) {
+    public SimpleFlatDocument(Class<T> resourceType, String fileName, File parentDirectory) {
         this(resourceType, fileName, parentDirectory, false);
         init();
     }
 
-    public SimpleDocument(Class<T> resourceType, String fileName, IModifierEventable eventable) {
+    public SimpleFlatDocument(Class<T> resourceType, String fileName, IModifierEventable eventable) {
         this(resourceType, fileName, eventable, false);
         init();
     }
@@ -36,22 +36,18 @@ public abstract class SimpleDocument<T extends FlatFile> extends FlatFileResourc
 
     @Override
     public void save() {
-        onSave();
+        getResource().write();
     }
 
     public abstract void onSave();
 
     @Override
     public void delete() {
-        onDelete();
+        getSelfFile().delete();
     }
-
-    public abstract void onDelete();
 
     @Override
     public boolean exists() {
-        return onExists();
+        return getSelfFile().exists();
     }
-
-    public abstract boolean onExists();
 }

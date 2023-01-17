@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import tv.quaint.storage.datastores.SimpleDataStore;
 
 import java.io.File;
 import java.util.concurrent.ConcurrentSkipListMap;

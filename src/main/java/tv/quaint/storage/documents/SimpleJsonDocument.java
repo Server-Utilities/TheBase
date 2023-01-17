@@ -5,7 +5,7 @@ import tv.quaint.objects.handling.derived.IModifierEventable;
 
 import java.io.File;
 
-public abstract class SimpleJsonDocument extends SimpleDocument<Json> {
+public abstract class SimpleJsonDocument extends SimpleFlatDocument<Json> {
     public SimpleJsonDocument(String fileName, File parentDirectory, boolean selfContained) {
         super(Json.class, fileName, parentDirectory, selfContained);
     }

@@ -4,13 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import tv.quaint.storage.documents.SimpleDocument;
+import tv.quaint.storage.documents.SimpleFlatDocument;
 
 import java.io.File;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public abstract class SimpleDocumentManager<T extends SimpleDocument<?>> implements IDocumentManager<T> {
+public abstract class SimpleDocumentManager<T extends SimpleFlatDocument<?>> implements IDocumentManager<T> {
     @Getter
     final Class<T> classifier;
     @Getter
@@ -73,6 +73,6 @@ public abstract class SimpleDocumentManager<T extends SimpleDocument<?>> impleme
 
     @Override
     public void saveAll() {
-        getLoadedResourcesAsSet().forEach(SimpleDocument::save);
+        getLoadedResourcesAsSet().forEach(SimpleFlatDocument::save);
     }
 }
