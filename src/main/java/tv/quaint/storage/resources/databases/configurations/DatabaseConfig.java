@@ -11,30 +11,12 @@ public class DatabaseConfig {
     @Getter @Setter
     private String link;
     @Getter @Setter
-    private String host;
-    @Getter @Setter
-    private int port;
-    @Getter @Setter
-    private String username;
-    @Getter @Setter
-    private String password;
-    @Getter @Setter
-    private String database;
-    @Getter @Setter
     private String tablePrefix;
-    @Getter @Setter
-    private String options;
 
-    public DatabaseConfig(StorageUtils.SupportedDatabaseType type, String link, String host, int port, String username, String password, String database, String tablePrefix, String options) {
+    public DatabaseConfig(StorageUtils.SupportedDatabaseType type, String link, String tablePrefix) {
         this.type = type;
         this.link = link;
-        this.host = host;
-        this.port = port;
-        this.username = username;
-        this.password = password;
-        this.database = database;
         this.tablePrefix = tablePrefix;
-        this.options = options;
     }
 
     /**
@@ -46,19 +28,7 @@ public class DatabaseConfig {
         @Getter
         private String link;
         @Getter
-        private String host;
-        @Getter
-        private int port;
-        @Getter
-        private String username;
-        @Getter
-        private String password;
-        @Getter
-        private String database;
-        @Getter
         private String tablePrefix;
-        @Getter
-        private String options;
 
         public Builder() {
         }
@@ -79,13 +49,7 @@ public class DatabaseConfig {
                     this.link = section.getString("link");
                     break;
             }
-            this.host = section.getString("host");
-            this.port = section.getInt("port");
-            this.username = section.getString("username");
-            this.password = section.getString("password");
-            this.database = section.getString("database");
             this.tablePrefix = section.getString("table-prefix");
-            this.options = section.getString("options");
         }
 
         public Builder setType(StorageUtils.SupportedDatabaseType type) {
@@ -98,43 +62,13 @@ public class DatabaseConfig {
             return this;
         }
 
-        public Builder setHost(String host) {
-            this.host = host;
-            return this;
-        }
-
-        public Builder setPort(int port) {
-            this.port = port;
-            return this;
-        }
-
-        public Builder setUsername(String username) {
-            this.username = username;
-            return this;
-        }
-
-        public Builder setPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder setDatabase(String database) {
-            this.database = database;
-            return this;
-        }
-
         public Builder setTablePrefix(String tablePrefix) {
             this.tablePrefix = tablePrefix;
             return this;
         }
 
-        public Builder setOptions(String options) {
-            this.options = options;
-            return this;
-        }
-
         public DatabaseConfig build() {
-            return new DatabaseConfig(type, link, host, port, username, password, database, tablePrefix, options);
+            return new DatabaseConfig(type, link, tablePrefix);
         }
     }
 }

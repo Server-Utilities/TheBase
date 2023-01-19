@@ -4,45 +4,38 @@ import lombok.Getter;
 import lombok.Setter;
 import tv.quaint.storage.resources.StorageResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
-import tv.quaint.storage.resources.databases.processing.AbstractDatabaseValue;
+import tv.quaint.utils.MathUtils;
 
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
-public abstract class DatabaseResource<P> extends StorageResource<P> {
+public abstract class DatabaseResource<C> extends StorageResource<C> {
     @Getter @Setter
-    private String table;
+    private C cachedConnection;
     @Getter @Setter
-    private DatabaseConfig config;
+    private Date lastConnectionCreation;
 
-    public DatabaseResource(Class<P> resourceType, String discriminatorKey, String discriminator, String table, DatabaseConfig config) {
+    public DatabaseResource(Class<C> resourceType, String discriminatorKey, Object discriminator) {
         super(resourceType, discriminatorKey, discriminator);
-        this.table = table;
-        this.config = config;
     }
 
-    @Override
-    public String getDiscriminator() {
-        return (String) super.getDiscriminator();
+    public abstract DatabaseConfig getConfig();
+
+    protected abstract C connect();
+
+    private C getConnection() {
+        if (lastConnectionCreation == null || cachedConnection == null || MathUtils.isDateOlderThan(lastConnectionCreation, 5, ChronoUnit.MINUTES)) {
+            this.cachedConnection = connect();
+            this.lastConnectionCreation = new Date();
+        }
+        return cachedConnection;
     }
 
-    public abstract P getProvider();
+    public abstract void create();
 
-    public abstract void createTable();
-
-    public abstract void ensureTableExists();
-
-    public abstract void insert();
-
-    public abstract void update();
-
-    @Override
-    public void push() {
-        if (! this.exists()) {
-            this.ensureTableExists();
-            this.insert();
-        } else {
-            this.update();
+    public void ensure() {
+        if (! exists()) {
+            create();
         }
     }
 }
