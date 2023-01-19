@@ -4,12 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import tv.quaint.storage.datastores.SimpleFlatDatastore;
 
 import java.io.File;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public abstract class SimpleDataStoreManager<T extends SimpleDataStore<?, ?>> implements IDataStoreManager<T> {
+public abstract class SimpleDataStoreManager<T extends SimpleFlatDatastore<?, ?>> implements IDataStoreManager<T> {
     @Getter
     final Class<T> classifier;
     @Getter
@@ -72,6 +73,6 @@ public abstract class SimpleDataStoreManager<T extends SimpleDataStore<?, ?>> im
 
     @Override
     public void saveAll() {
-        getLoadedResourcesAsSet().forEach(SimpleDataStore::save);
+        getLoadedResourcesAsSet().forEach(SimpleFlatDatastore::save);
     }
 }
