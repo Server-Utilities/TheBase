@@ -182,4 +182,37 @@ public class StringUtils {
     public static List<String> getAsCompletionList(String[] arguments, Collection<String> listOfPossibilities) {
         return new ArrayList<>(getAsCompletion(arguments, listOfPossibilities));
     }
+
+    public static List<String> stringToList(String string, String separator) {
+        List<String> list = new ArrayList<>();
+
+        if (string == null) return list;
+        if (string.isEmpty()) return list;
+
+        String[] split = string.split(separator);
+        list.addAll(Arrays.asList(split));
+
+        return list;
+    }
+
+    public static List<String> stringToList(String string) {
+        return stringToList(string, ",");
+    }
+
+    public static String listToString(List<String> list, String separator) {
+        StringBuilder sb = new StringBuilder();
+
+        for (String string : list) {
+            sb.append(string).append(separator);
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        return sb.toString().trim();
+    }
+
+    public static String listToString(List<String> list) {
+        return listToString(list, ",");
+    }
 }

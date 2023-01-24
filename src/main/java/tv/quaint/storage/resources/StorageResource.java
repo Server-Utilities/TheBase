@@ -126,4 +126,8 @@ public abstract class StorageResource<T> implements Comparable<StorageResource<?
     public Class<T> getClassifier() {
         return getResourceType();
     }
+
+    public String getDiscriminatorAsString() {
+        return discriminator + "";
+    }
 }
