@@ -2,12 +2,13 @@ package tv.quaint.storage.resources.databases.singled;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import tv.quaint.storage.resources.databases.DatabaseResource;
 import tv.quaint.storage.resources.databases.processing.DatabaseValue;
 
-public class DatabaseSingle<C> {
+public class DatabaseSingle<C, R extends DatabaseResource<C>> implements Comparable<DatabaseSingle<?, ?>> {
     @Getter @Setter
-    DatabaseResource<C> database;
+    R database;
     @Getter @Setter
     String table;
     @Getter @Setter
@@ -15,7 +16,7 @@ public class DatabaseSingle<C> {
     @Getter @Setter
     String discriminator;
 
-    public DatabaseSingle(DatabaseResource<C> database, String table, String discriminatorKey, String discriminator) {
+    public DatabaseSingle(R database, String table, String discriminatorKey, String discriminator) {
         this.database = database;
         this.table = table;
         this.discriminatorKey = discriminatorKey;
@@ -44,5 +45,10 @@ public class DatabaseSingle<C> {
 
     public <V> V getOrSetDefault(V def) {
         return database.getOrSetDefault(table, discriminatorKey, discriminator, def);
+    }
+
+    @Override
+    public int compareTo(@NotNull DatabaseSingle<?, ?> o) {
+        return CharSequence.compare(discriminator, o.discriminator);
     }
 }

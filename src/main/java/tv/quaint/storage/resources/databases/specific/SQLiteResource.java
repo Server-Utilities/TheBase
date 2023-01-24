@@ -3,7 +3,7 @@ package tv.quaint.storage.resources.databases.specific;
 import tv.quaint.storage.resources.databases.SQLResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 
-public abstract class SQLiteResource extends SQLResource {
+public class SQLiteResource extends SQLResource {
     public SQLiteResource(DatabaseConfig config) {
         super(config);
     }
