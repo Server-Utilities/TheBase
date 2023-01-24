@@ -4,13 +4,13 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.internal.MongoClientImpl;
 import org.bson.Document;
 import tv.quaint.storage.resources.databases.DatabaseResource;
+import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 
 public abstract class MongoResource extends DatabaseResource<MongoClient> {
-    public MongoResource(String discriminatorKey, Object discriminator) {
-        super(MongoClient.class, discriminatorKey, discriminator);
+    public MongoResource(DatabaseConfig config) {
+        super(MongoClient.class, config);
     }
 
     public MongoClientURI getMongoClientURI() {

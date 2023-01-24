@@ -12,7 +12,7 @@ public class CachedResource<T> extends StorageResource<T> {
     @Getter @Setter
     boolean deleted = false;
 
-    public CachedResource(Class<T> resourceType, String discriminatorKey, Object discriminator) {
+    public CachedResource(Class<T> resourceType, String discriminatorKey, String discriminator) {
         super(resourceType, discriminatorKey, discriminator);
     }
 
