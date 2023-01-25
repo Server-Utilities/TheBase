@@ -27,6 +27,11 @@ public class MongoResource extends DatabaseResource<MongoClient> {
 
     @Override
     public void create(String table, ConcurrentSkipListSet<DatabaseValue<?>> values) {
+        getDatabase().createCollection(table);
+    }
+
+    @Override
+    public void insert(String table, ConcurrentSkipListSet<DatabaseValue<?>> values) {
         ConcurrentSkipListMap<String, Object> map = new ConcurrentSkipListMap<>();
         for (DatabaseValue<?> value : values) {
             map.put(value.getKey(), value.getValue());

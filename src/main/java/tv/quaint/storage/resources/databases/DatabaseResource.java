@@ -52,6 +52,8 @@ public abstract class DatabaseResource<C> implements Comparable<DatabaseResource
 
     public abstract void create(String table, ConcurrentSkipListSet<DatabaseValue<?>> values);
 
+    public abstract void insert(String table, ConcurrentSkipListSet<DatabaseValue<?>> values);
+
     public void ensure(String table, String keyKey, String key, Object value) {
         if (! has(table, keyKey, key, value)) {
             updateSingle(table, keyKey, key, value);

@@ -4,7 +4,7 @@
   <groupId>com.github.server-utilities</groupId>
   <artifactId>thebase</artifactId>
   <name>TheBase</name>
-  <version>1.0.13</version>
+  <version>1.1.0</version>
   <build>
     <resources>
       <resource>
@@ -102,8 +102,8 @@
               <shadedPattern>tv.quaint.thebase.lib.rabbitmq</shadedPattern>
             </relocation>
             <relocation>
-              <pattern>org.apache.commons.pool2</pattern>
-              <shadedPattern>tv.quaint.thebase.lib.commonspool2</shadedPattern>
+              <pattern>org.apache.commons</pattern>
+              <shadedPattern>tv.quaint.thebase.lib.apache.commons</shadedPattern>
             </relocation>
             <relocation>
               <pattern>ninja.leaping.configurate</pattern>
@@ -120,6 +120,18 @@
             <relocation>
               <pattern>com.google.re2j</pattern>
               <shadedPattern>tv.quaint.thebase.lib.re2j</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.google.common</pattern>
+              <shadedPattern>tv.quaint.thebase.lib.google.common</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.google.gson</pattern>
+              <shadedPattern>tv.quaint.thebase.lib.google.gson</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.pf4j</pattern>
+              <shadedPattern>tv.quaint.thebase.lib.pf4j</shadedPattern>
             </relocation>
           </relocations>
         </configuration>

@@ -47,6 +47,12 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     }
 
     @Override
+    public void insert(String table, ConcurrentSkipListSet<DatabaseValue<?>> values) {
+        DatabaseValue<?>[] valueArray = values.toArray(new DatabaseValue<?>[0]);
+        insert(table, valueArray);
+    }
+
+    @Override
     public <O> O get(String table, String keyKey, String key, Class<O> def) {
         try (Connection connection = getCachedConnection()) {
             ResultSet resultSet = connection.prepareStatement(getSelectString(table, keyKey, key)).executeQuery();
@@ -107,6 +113,34 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         return builder.toString();
     }
 
+    public String getInsertString(String table, DatabaseValue<?>... values) {
+        StringBuilder builder = new StringBuilder("INSERT INTO " + table + " ( ");
+
+        int i = 0;
+        for (DatabaseValue<?> value : values) {
+            builder.append(value.getKey());
+            if (i != values.length - 1) {
+                builder.append(", ");
+            }
+            i ++;
+        }
+
+        builder.append(" ) VALUES ( ");
+
+        i = 0;
+        for (DatabaseValue<?> value : values) {
+            builder.append("?");
+            if (i != values.length - 1) {
+                builder.append(", ");
+            }
+            i ++;
+        }
+
+        builder.append(" );");
+
+        return builder.toString();
+    }
+
     public String getCheckExistsString(String table, String keyKey, String key) {
         return "SELECT * FROM " + table + " WHERE " + keyKey + " = '" + key + "'";
     }
@@ -134,6 +168,14 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     public void create(String table, DatabaseValue<?>... values) {
         try (Connection connection = getConnection()) {
             connection.prepareStatement(getCreateTablesString(table, values)).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insert(String table, DatabaseValue<?>... values) {
+        try (Connection connection = getConnection()) {
+            connection.prepareStatement(getInsertString(table, values)).execute();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -6,7 +6,7 @@
 
     <groupId>com.github.server-utilities</groupId>
     <artifactId>thebase</artifactId>
-    <version>1.0.14</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>TheBase</name>
@@ -127,8 +127,8 @@
                             <shadedPattern>tv.quaint.thebase.lib.rabbitmq</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>org.apache.commons.pool2</pattern>
-                            <shadedPattern>tv.quaint.thebase.lib.commonspool2</shadedPattern>
+                            <pattern>org.apache.commons</pattern>
+                            <shadedPattern>tv.quaint.thebase.lib.apache.commons</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>ninja.leaping.configurate</pattern>
@@ -145,6 +145,18 @@
                         <relocation>
                             <pattern>com.google.re2j</pattern>
                             <shadedPattern>tv.quaint.thebase.lib.re2j</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.common</pattern>
+                            <shadedPattern>tv.quaint.thebase.lib.google.common</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.gson</pattern>
+                            <shadedPattern>tv.quaint.thebase.lib.google.gson</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.pf4j</pattern>
+                            <shadedPattern>tv.quaint.thebase.lib.pf4j</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -176,6 +188,34 @@
             <groupId>com.github.simplix-softworks</groupId>
             <artifactId>simplixstorage</artifactId>
             <version>3.2.5</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- PF4J -->
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>3.8.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.0-android</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
             <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
