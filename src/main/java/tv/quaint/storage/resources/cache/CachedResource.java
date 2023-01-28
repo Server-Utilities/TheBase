@@ -14,11 +14,12 @@ public class CachedResource<T> extends StorageResource<T> {
 
     public CachedResource(Class<T> resourceType, String discriminatorKey, String discriminator) {
         super(resourceType, discriminatorKey, discriminator);
+        getCachedData().put(discriminatorKey, discriminator);
     }
 
     @Override
     public <O> O get(String key, Class<O> def) {
-        return (O) cachedData.get(key);
+        return (O) cachedData.get(fixSyntax(key));
     }
 
     @Override
@@ -28,15 +29,15 @@ public class CachedResource<T> extends StorageResource<T> {
 
     @Override
     public <V> void write(String key, V value) {
-        cachedData.put(key, value);
+        cachedData.put(fixSyntax(key), value);
     }
 
     @Override
     public <O> O getOrSetDefault(String key, O value) {
-        if (cachedData.containsKey(key)) {
-            return (O) cachedData.get(key);
+        if (cachedData.containsKey(fixSyntax(key))) {
+            return (O) cachedData.get(fixSyntax(key));
         } else {
-            cachedData.put(key, value);
+            cachedData.put(fixSyntax(key), value);
             return value;
         }
     }
@@ -59,11 +60,48 @@ public class CachedResource<T> extends StorageResource<T> {
 
     @Override
     public <V> void updateSingle(String key, V value) {
-        cachedData.put(key, value);
+        cachedData.put(fixSyntax(key), value);
     }
 
     @Override
     public <V> void updateMultiple(ConcurrentSkipListMap<String, V> values) {
-        cachedData.putAll(values);
+        values.forEach((key, value) -> cachedData.put(fixSyntax(key), value));
+    }
+
+    public static String fixSyntax(String key) {
+        return key
+                .replace("-", "_")
+                .replace('.', '_')
+                .replace("+", "_")
+                .replace(" ", "_")
+                .replace(":", "_")
+                .replace(";", "_")
+                .replace("=", "_")
+                .replace("?", "_")
+                .replace("!", "_")
+                .replace("@", "_")
+                .replace("#", "_")
+                .replace("$", "_")
+                .replace("%", "_")
+                .replace("^", "_")
+                .replace("&", "_")
+                .replace("*", "_")
+                .replace("(", "_")
+                .replace(")", "_")
+                .replace("[", "_")
+                .replace("]", "_")
+                .replace("{", "_")
+                .replace("}", "_")
+                .replace("|", "_")
+                .replace("\\", "_")
+                .replace("/", "_")
+                .replace("`", "_")
+                .replace("~", "_")
+                .replace("'", "_")
+                .replace("\"", "_")
+                .replace(",", "_")
+                .replace("<", "_")
+                .replace(">", "_")
+                ;
     }
 }

@@ -9,6 +9,7 @@ import tv.quaint.storage.resources.databases.DatabaseResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 import tv.quaint.storage.resources.databases.processing.DatabaseValue;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -26,7 +27,7 @@ public class MongoResource extends DatabaseResource<MongoClient> {
     }
 
     @Override
-    public void create(String table, ConcurrentSkipListSet<DatabaseValue<?>> values) {
+    public void create(String table, String primaryKey, ConcurrentSkipListSet<DatabaseValue<?>> values) {
         getDatabase().createCollection(table);
     }
 
@@ -34,16 +35,24 @@ public class MongoResource extends DatabaseResource<MongoClient> {
     public void insert(String table, ConcurrentSkipListSet<DatabaseValue<?>> values) {
         ConcurrentSkipListMap<String, Object> map = new ConcurrentSkipListMap<>();
         for (DatabaseValue<?> value : values) {
-            map.put(value.getKey(), value.getValue());
+            DatabaseValue<?> databaseValue = fromCollectionOrArray(value.getKey(), value.getValue());
+            map.put(databaseValue.getKey(), databaseValue.getValue());
         }
         getDatabase().getCollection(table).insertOne(new Document(map));
     }
 
     @Override
-    public <O> O get(String table, String keyKey, String key, Class<O> def) {
-        Document document = getDatabase().getCollection(table).find(new Document(keyKey, key)).first();
+    public <O> O get(String table, String discriminatorKey, String discriminator, String key, Class<O> def) {
+        Document document = getDatabase().getCollection(table).find(new Document(discriminatorKey, discriminator)).first();
         if (document != null) {
-            return document.get(keyKey, def);
+            Object obj = document.get(key);
+            if (def.isArray()) {
+                return (O) getArrayFromString((String) obj, def);
+            } else if (def.isAssignableFrom(Collection.class)) {
+                return (O) getCollectionFromString((String) obj, def);
+            } else {
+                return (O) obj;
+            }
         } else {
             return null;
         }
@@ -55,10 +64,10 @@ public class MongoResource extends DatabaseResource<MongoClient> {
     }
 
     @Override
-    public <O> O getOrSetDefault(String table, String keyKey, String key, O value) {
-        O o = get(table, keyKey, key, (Class<O>) value.getClass());
+    public <O> O getOrSetDefault(String table, String discriminatorKey, String discriminator, String key, O value) {
+        O o = get(table, discriminatorKey, discriminator, key, (Class<O>) value.getClass());
         if (o == null) {
-            updateSingle(table, keyKey, key, value);
+            updateSingle(table, discriminatorKey, discriminator, key, value);
             return value;
         } else {
             return o;
@@ -66,8 +75,8 @@ public class MongoResource extends DatabaseResource<MongoClient> {
     }
 
     @Override
-    public void delete(String table, String keyKey, String key) {
-        getDatabase().getCollection(table).deleteOne(new Document(keyKey, key));
+    public void delete(String table, String discriminatorKey, String discriminator) {
+        getDatabase().getCollection(table).deleteOne(new Document(discriminatorKey, discriminator));
     }
 
     @Override
@@ -76,8 +85,8 @@ public class MongoResource extends DatabaseResource<MongoClient> {
     }
 
     @Override
-    public boolean exists(String table, String keyKey, String key) {
-        return getDatabase().getCollection(table).find(new Document(keyKey, key)).first() != null;
+    public boolean exists(String table, String discriminatorKey, String discriminator) {
+        return getDatabase().getCollection(table).find(new Document(discriminatorKey, discriminator)).first() != null;
     }
 
     @Override
@@ -86,13 +95,15 @@ public class MongoResource extends DatabaseResource<MongoClient> {
     }
 
     @Override
-    public <V> void updateSingle(String table, String keyKey, String key, V value) {
-        getDatabase().getCollection(table).updateOne(new Document(keyKey, key), new Document("$set", new Document(keyKey, value)));
+    public <V> void updateSingle(String table, String discriminatorKey, String discriminator, String key, V value) {
+        DatabaseValue<?> databaseValue = fromCollectionOrArray(key, value);
+        getDatabase().getCollection(table).updateOne(new Document(discriminatorKey, discriminator),
+                new Document("$set", new Document(key, databaseValue.getValue())));
     }
 
     @Override
-    public <V> void updateMultiple(String table, String keyKey, String key, ConcurrentSkipListMap<String, V> values) {
-        values.forEach((k, v) -> updateSingle(table, keyKey, key, v));
+    public <V> void updateMultiple(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, V> values) {
+        values.forEach((k, v) -> updateSingle(table, discriminatorKey, discriminator, k, v));
     }
 
     public MongoDatabase getDatabase() {

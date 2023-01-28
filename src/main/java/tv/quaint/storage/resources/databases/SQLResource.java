@@ -5,10 +5,16 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.Setter;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
+import tv.quaint.storage.resources.databases.events.SQLResourceStatementEvent;
+import tv.quaint.storage.resources.databases.events.SQLStatementEvent;
 import tv.quaint.storage.resources.databases.processing.DatabaseValue;
+import tv.quaint.utils.MathUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -23,6 +29,11 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
 
     @Override
     protected Connection connect() {
+        if (getDataSource() == null || MathUtils.isDateOlderThan(getLastConnectionCreation(), 1, ChronoUnit.MINUTES)) {
+            setDataSource(createDataSource());
+            setLastConnectionCreation(new Date());
+        }
+
         try {
             return getDataSource().getConnection();
         } catch (Exception e) {
@@ -33,7 +44,16 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
 
     public Connection getConnection() {
         try {
-            return dataSource.getConnection();
+            if (getCachedConnection() == null) {
+                setCachedConnection(connect());
+                setLastConnectionCreation(new Date());
+            }
+            if (MathUtils.isDateOlderThan(getLastConnectionCreation(), 5, ChronoUnit.MINUTES) || getCachedConnection().isClosed()) {
+                setCachedConnection(connect());
+                setLastConnectionCreation(new Date());
+            }
+
+            return getCachedConnection();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -41,9 +61,9 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     }
 
     @Override
-    public void create(String table, ConcurrentSkipListSet<DatabaseValue<?>> values) {
+    public void create(String table, String primaryKey, ConcurrentSkipListSet<DatabaseValue<?>> values) {
         DatabaseValue<?>[] valueArray = values.toArray(new DatabaseValue<?>[0]);
-        create(table, valueArray);
+        create(table, primaryKey, valueArray);
     }
 
     @Override
@@ -53,11 +73,20 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     }
 
     @Override
-    public <O> O get(String table, String keyKey, String key, Class<O> def) {
-        try (Connection connection = getCachedConnection()) {
-            ResultSet resultSet = connection.prepareStatement(getSelectString(table, keyKey, key)).executeQuery();
+    public <O> O get(String table, String discriminatorKey, String discriminator, String key, Class<O> def) {
+        try (Connection connection = getConnection()) {
+            ResultSet resultSet = connection.prepareStatement(getSelectString(table, discriminatorKey, discriminator)).executeQuery();
             if (resultSet.next()) {
-                return (O) resultSet.getObject(keyKey);
+                Object obj = resultSet.getObject(key);
+                if (obj == null) return null;
+
+                if (def.isArray()) {
+                    return (O) getArrayFromString((String) obj, def);
+                } else if (def.isAssignableFrom(Collection.class)) {
+                    return (O) getCollectionFromString((String) obj, def);
+                } else {
+                    return (O) obj;
+                }
             } else {
                 return null;
             }
@@ -68,10 +97,10 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     }
 
     @Override
-    public <O> O getOrSetDefault(String table, String keyKey, String key, O value) {
-        O o = get(table, keyKey, key, (Class<O>) value.getClass());
+    public <O> O getOrSetDefault(String table, String discriminatorKey, String discriminator, String key, O value) {
+        O o = get(table, discriminatorKey, discriminator, key, (Class<O>) value.getClass());
         if (o == null) {
-            updateSingle(table, keyKey, key, value);
+            updateSingle(table, discriminatorKey, discriminator, key, value);
             return value;
         } else {
             return o;
@@ -101,14 +130,16 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
 
     public abstract String getJdbcUrl();
 
-    public String getCreateTablesString(String table, DatabaseValue<?>... values) {
+    public String getCreateTablesString(String table, String primaryKey, DatabaseValue<?>... values) {
         StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS " + table + " ( ");
 
         for (DatabaseValue<?> value : values) {
             builder.append(value.getKey()).append(" ").append(value.getSQLType()).append(", ");
         }
 
-        builder.append("PRIMARY KEY (").append(values[0].getKey()).append(" ) );");
+        builder.append("PRIMARY KEY ( ").append(primaryKey).append(" ) );");
+
+        new SQLResourceStatementEvent(this, builder.toString()).fire();
 
         return builder.toString();
     }
@@ -118,7 +149,8 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
 
         int i = 0;
         for (DatabaseValue<?> value : values) {
-            builder.append(value.getKey());
+            DatabaseValue<?> t = fromCollectionOrArray(value.getKey(), value.getValue());
+            builder.append(t.getKey());
             if (i != values.length - 1) {
                 builder.append(", ");
             }
@@ -129,7 +161,12 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
 
         i = 0;
         for (DatabaseValue<?> value : values) {
-            builder.append("?");
+            DatabaseValue<?> t = fromCollectionOrArray(value.getKey(), value.getValue());
+            if (t.isString()) {
+                builder.append("'").append(t.getValue()).append("'");
+            } else {
+                builder.append(t.getValue());
+            }
             if (i != values.length - 1) {
                 builder.append(", ");
             }
@@ -138,22 +175,36 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
 
         builder.append(" );");
 
+        new SQLResourceStatementEvent(this, builder.toString()).fire();
+
         return builder.toString();
     }
 
-    public String getCheckExistsString(String table, String keyKey, String key) {
-        return "SELECT * FROM " + table + " WHERE " + keyKey + " = '" + key + "'";
+    public String getCheckExistsString(String table, String discriminatorKey, String key) {
+        StringBuilder builder = new StringBuilder("SELECT * FROM " + table + " WHERE " + discriminatorKey + " = '" + key + "';");
+
+        new SQLResourceStatementEvent(this, builder.toString()).fire();
+
+        return builder.toString();
     }
 
-    public String getDeleteString(String table, String keyKey, String key) {
-        return "DELETE FROM " + table + " WHERE " + keyKey + " = '" + key + "';";
+    public String getDeleteString(String table, String discriminatorKey, String key) {
+        StringBuilder builder = new StringBuilder("DELETE FROM " + table + " WHERE " + discriminatorKey + " = '" + key + "';");
+
+        new SQLResourceStatementEvent(this, builder.toString()).fire();
+
+        return builder.toString();
     }
 
-    public String getSelectString(String table, String keyKey, String key) {
-        return "SELECT * FROM " + table + " WHERE " + keyKey + " = '" + key + "';";
+    public String getSelectString(String table, String discriminatorKey, String discriminator) {
+        StringBuilder builder = new StringBuilder("SELECT * FROM " + table + " WHERE " + discriminatorKey + " = '" + discriminator + "';");
+
+        new SQLResourceStatementEvent(this, builder.toString()).fire();
+
+        return builder.toString();
     }
 
-    public String getUpdateString(String table, String keyKey, String key, DatabaseValue<?> value) {
+    public String getUpdateString(String table, String discriminatorKey, String discriminator, String key, DatabaseValue<?> value) {
         String s = "";
 
         if (value.isString()) {
@@ -161,13 +212,16 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } else {
             s = value.getValue().toString();
         }
+        StringBuilder builder = new StringBuilder("UPDATE " + table + " SET " + key + " = " + s + " WHERE " + discriminatorKey + " = '" + discriminator + "';");
 
-        return "UPDATE " + table + " SET " + value.getKey() + " = " + s + " WHERE " + keyKey + " = '" + key + "';";
+        new SQLResourceStatementEvent(this, builder.toString()).fire();
+
+        return builder.toString();
     }
 
-    public void create(String table, DatabaseValue<?>... values) {
+    public void create(String table, String primaryKey, DatabaseValue<?>... values) {
         try (Connection connection = getConnection()) {
-            connection.prepareStatement(getCreateTablesString(table, values)).execute();
+            connection.prepareStatement(getCreateTablesString(table, primaryKey, values)).execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -199,9 +253,9 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     }
 
     @Override
-    public void delete(String table, String keyKey, String key) {
+    public void delete(String table, String discriminatorKey, String key) {
         try (Connection connection = getConnection()) {
-            connection.prepareStatement(getDeleteString(table, keyKey, key)).execute();
+            connection.prepareStatement(getDeleteString(table, discriminatorKey, key)).execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -217,8 +271,8 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     }
 
     @Override
-    public boolean exists(String table, String keyKey, String key) {
-        try (ResultSet resultSet = query(getCheckExistsString(table, keyKey, key))) {
+    public boolean exists(String table, String discriminatorKey, String key) {
+        try (ResultSet resultSet = query(getCheckExistsString(table, discriminatorKey, key))) {
             return resultSet.next();
         } catch (Exception e) {
             e.printStackTrace();
@@ -237,19 +291,19 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     }
 
     @Override
-    public <V> void updateSingle(String table, String keyKey, String key, V value) {
+    public <V> void updateSingle(String table, String discriminatorKey, String discriminator, String key, V value) {
         try (Connection connection = getConnection()) {
-            connection.prepareStatement(getUpdateString(table, keyKey, key, new DatabaseValue<>(keyKey, value))).execute();
+            connection.prepareStatement(getUpdateString(table, discriminatorKey, discriminator, key, fromCollectionOrArray(key, value))).execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public <V> void updateMultiple(String table, String keyKey, String key, ConcurrentSkipListMap<String, V> values) {
+    public <V> void updateMultiple(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, V> values) {
         try (Connection connection = getConnection()) {
             for (Map.Entry<String, V> entry : values.entrySet()) {
-                connection.prepareStatement(getUpdateString(table, keyKey, key, new DatabaseValue<>(entry.getKey(), entry.getValue()))).execute();
+                connection.prepareStatement(getUpdateString(table, discriminatorKey, discriminator, entry.getKey(), fromCollectionOrArray(entry.getKey(), entry.getValue()))).execute();
             }
         } catch (Exception e) {
             e.printStackTrace();

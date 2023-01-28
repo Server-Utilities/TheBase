@@ -160,27 +160,27 @@ public class DatabaseValue<V> implements Comparable<DatabaseValue<?>> {
 
     public String getSQLType() {
         if (isString()) {
-            return "VARCHAR";
+            return "VARCHAR(255)";
         } else if (isInteger()) {
-            return "INTEGER";
+            return "INTEGER(11)";
         } else if (isLong()) {
-            return "BIGINT";
+            return "BIGINT(20)";
         } else if (isDouble()) {
-            return "DOUBLE";
+            return "DOUBLE(20, 10)";
         } else if (isFloat()) {
-            return "FLOAT";
+            return "FLOAT(20, 10)";
         } else if (isBoolean()) {
             return "BOOLEAN";
         } else if (isByte()) {
-            return "TINYINT";
+            return "TINYINT(4)";
         } else if (isShort()) {
-            return "SMALLINT";
+            return "SMALLINT(6)";
         } else if (isCharacter()) {
-            return "CHAR";
+            return "CHAR(1)";
         } else if (isDate()) {
-            return "TIMESTAMP";
+            return "TIMESTAMP(6)";
         } else {
-            return "VARCHAR";
+            return "VARCHAR(255)";
         }
     }
 
