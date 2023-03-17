@@ -78,7 +78,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
         return cachedResources;
     }
 
@@ -114,7 +114,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
         return o;
     }
 
@@ -274,7 +274,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     public void insert(String table, DatabaseValue<?>... values) {
@@ -283,7 +283,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     public void execute(String query) {
@@ -292,7 +292,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     public ResultSet query(String query) {
@@ -302,7 +302,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
         return set;
     }
 
@@ -313,7 +313,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     @Override
@@ -323,7 +323,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     @Override
@@ -335,7 +335,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             if (! e.getMessage().contains("doesn't exist")) e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
         return exists;
     }
 
@@ -348,7 +348,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             if (! e.getMessage().contains("doesn't exist")) e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
         return exists;
     }
 
@@ -359,7 +359,7 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     @Override
@@ -371,6 +371,6 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 }

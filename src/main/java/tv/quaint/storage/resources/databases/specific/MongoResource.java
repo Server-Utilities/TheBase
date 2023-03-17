@@ -77,7 +77,7 @@ public class MongoResource extends DatabaseResource<MongoClient> {
             if (cachedResource[0] != null)
                 cachedResources.add(cachedResource[0]);
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
         return cachedResources;
     }
 
@@ -97,19 +97,19 @@ public class MongoResource extends DatabaseResource<MongoClient> {
 //        }
         new MongoResourceStatementEvent(this, MongoStatementEvent.createCollection(table)).fire();
         getDatabase(database).createCollection(table);
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     public boolean databaseExists(String database) {
         boolean exists = databaseNames().contains(database);
-        getBlockingFuture().complete(true);
+        setCompleted();
         return exists;
     }
 
     public ConcurrentSkipListSet<String> databaseNames() {
         new MongoResourceStatementEvent(this, MongoStatementEvent.getCollectionNames()).fire();
         ConcurrentSkipListSet<String> databaseNames = getConnection().listDatabaseNames().into(new ConcurrentSkipListSet<>());
-        getBlockingFuture().complete(true);
+        setCompleted();
         return databaseNames;
     }
 
@@ -124,7 +124,7 @@ public class MongoResource extends DatabaseResource<MongoClient> {
         getCollection(table).insertOne(document);
         new MongoResourceStatementEvent(this, MongoStatementEvent.insert(table,
                 document.toJson())).fire();
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     @Override
@@ -143,7 +143,7 @@ public class MongoResource extends DatabaseResource<MongoClient> {
                 }
             }
         }
-        getBlockingFuture().complete(true);
+        setCompleted();
         return o;
     }
 
@@ -169,12 +169,12 @@ public class MongoResource extends DatabaseResource<MongoClient> {
         DeleteResult result = getCollection(table).deleteOne(new Document(discriminatorKey, discriminator));
         new MongoResourceStatementEvent(this,
                 MongoStatementEvent.remove(table, getDocument(table, discriminatorKey, discriminator).toJson())).fire();
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     public Document getDocument(String table, String discriminatorKey, String discriminator) {
         Document document = getCollection(table).find(new Document(discriminatorKey, discriminator)).first();
-        getBlockingFuture().complete(true);
+        setCompleted();
         return document;
     }
 
@@ -182,13 +182,13 @@ public class MongoResource extends DatabaseResource<MongoClient> {
     public void delete(String table) {
         getCollection(table).drop();
         new MongoResourceStatementEvent(this, MongoStatementEvent.dropCollection(table)).fire();
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     @Override
     public boolean exists(String table, String discriminatorKey, String discriminator) {
         boolean exists = getCollection(table).find(new Document(discriminatorKey, discriminator)).first() != null;
-        getBlockingFuture().complete(true);
+        setCompleted();
         return exists;
     }
 
@@ -201,7 +201,7 @@ public class MongoResource extends DatabaseResource<MongoClient> {
 
     public ConcurrentSkipListSet<String> getCollections(String database) {
         ConcurrentSkipListSet<String> dbs = getDatabase(database).listCollectionNames().into(new ConcurrentSkipListSet<>());
-        getBlockingFuture().complete(true);
+        setCompleted();
         return dbs;
     }
 
@@ -212,7 +212,7 @@ public class MongoResource extends DatabaseResource<MongoClient> {
         getCollection(table).updateOne(new Document(discriminatorKey, discriminator),
                 new Document("$set", document));
         new MongoResourceStatementEvent(this, MongoStatementEvent.update(table, document.toJson())).fire();
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     @Override
@@ -225,7 +225,7 @@ public class MongoResource extends DatabaseResource<MongoClient> {
         getCollection(table).updateOne(new Document(discriminatorKey, discriminator),
                 new Document("$set", document));
         new MongoResourceStatementEvent(this, MongoStatementEvent.update(table, document.toJson())).fire();
-        getBlockingFuture().complete(true);
+        setCompleted();
     }
 
     public MongoDatabase getDatabase(String database) {

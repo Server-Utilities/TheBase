@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import tv.quaint.objects.Classifiable;
-import tv.quaint.storage.resources.StorageResource;
 import tv.quaint.storage.resources.cache.CachedResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 import tv.quaint.storage.resources.databases.processing.DatabaseValue;
@@ -17,6 +16,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public abstract class DatabaseResource<C> implements Comparable<DatabaseResource<?>>, Classifiable<C> {
@@ -37,40 +37,41 @@ public abstract class DatabaseResource<C> implements Comparable<DatabaseResource
     @Getter @Setter
     private Date lastPoll;
     @Getter @Setter
-    private CompletableFuture<Boolean> blockingFuture;
+    private AtomicInteger connectedCount;
+    @Getter @Setter
+    private DatabaseState state;
 
     public DatabaseResource(Class<C> resourceType, DatabaseConfig config) {
         this.initializeDate = new Date();
         this.resourceType = resourceType;
         this.config = config;
-        this.blockingFuture = CompletableFuture.completedFuture(true);
+        this.connectedCount = new AtomicInteger(0);
+        this.state = new DatabaseState(DatabaseState.StateType.COMPLETED);
+    }
+
+    public void setWaiting() {
+        this.state.setState(DatabaseState.StateType.WAITING);
+    }
+
+    public void setCompleted() {
+        this.state.setState(DatabaseState.StateType.COMPLETED);
     }
 
     protected abstract C connect();
 
     public C getConnection() {
-        return CompletableFuture.supplyAsync(() -> {
-            boolean run = false;
-            if (blockingFuture == null) run = true;
-            else if (blockingFuture.isDone()) run = true;
-            else if (blockingFuture.isCompletedExceptionally()) run = true;
-            else if (blockingFuture.isCancelled()) run = true;
-            else {
-                run = blockingFuture.join();
-            }
+        C c;
 
-            this.blockingFuture = new CompletableFuture<>();
+        if (preTestConnection() || testConnection()) {
+            this.cachedConnection = connect();
+            this.lastConnectionCreation = new Date();
+        }
 
-            if (run) {
-                if (preTestConnection() || testConnection()) {
-                    this.cachedConnection = connect();
-                    this.lastConnectionCreation = new Date();
-                }
-                return cachedConnection;
-            } else {
-                return this.cachedConnection = connect();
-            }
-        }).join();
+        c = cachedConnection;
+
+        state.setState(DatabaseState.StateType.WAITING);
+
+        return c;
     }
 
     public boolean preTestConnection() {
