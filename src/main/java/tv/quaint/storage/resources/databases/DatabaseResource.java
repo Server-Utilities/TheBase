@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import tv.quaint.objects.Classifiable;
 import tv.quaint.storage.resources.StorageResource;
+import tv.quaint.storage.resources.cache.CachedResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
 import tv.quaint.storage.resources.databases.processing.DatabaseValue;
 import tv.quaint.utils.MathUtils;
@@ -13,8 +14,10 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 public abstract class DatabaseResource<C> implements Comparable<DatabaseResource<?>>, Classifiable<C> {
     @Getter
@@ -31,22 +34,56 @@ public abstract class DatabaseResource<C> implements Comparable<DatabaseResource
     private int hangingMillis;
     @Getter @Setter
     private Date lastReload;
+    @Getter @Setter
+    private Date lastPoll;
+    @Getter @Setter
+    private CompletableFuture<Boolean> blockingFuture;
 
     public DatabaseResource(Class<C> resourceType, DatabaseConfig config) {
         this.initializeDate = new Date();
         this.resourceType = resourceType;
         this.config = config;
+        this.blockingFuture = CompletableFuture.completedFuture(true);
     }
 
     protected abstract C connect();
 
-    private C getConnection() {
-        if (lastConnectionCreation == null || cachedConnection == null || MathUtils.isDateOlderThan(lastConnectionCreation, 5, ChronoUnit.MINUTES)) {
-            this.cachedConnection = connect();
-            this.lastConnectionCreation = new Date();
-        }
-        return cachedConnection;
+    public C getConnection() {
+        return CompletableFuture.supplyAsync(() -> {
+            boolean run = false;
+            if (blockingFuture == null) run = true;
+            else if (blockingFuture.isDone()) run = true;
+            else if (blockingFuture.isCompletedExceptionally()) run = true;
+            else if (blockingFuture.isCancelled()) run = true;
+            else {
+                run = blockingFuture.join();
+            }
+
+            this.blockingFuture = new CompletableFuture<>();
+
+            if (run) {
+                if (preTestConnection() || testConnection()) {
+                    this.cachedConnection = connect();
+                    this.lastConnectionCreation = new Date();
+                }
+                return cachedConnection;
+            } else {
+                return this.cachedConnection = connect();
+            }
+        }).join();
     }
+
+    public boolean preTestConnection() {
+        return lastConnectionCreation == null || cachedConnection == null || MathUtils.isDateOlderThan(lastConnectionCreation, 5, ChronoUnit.MINUTES);
+    }
+
+    public abstract boolean testConnection();
+
+    public <T> ConcurrentSkipListSet<T> listColumn(String table, String column, Class<T> def) {
+        return listTable(table).stream().map(cachedResource -> cachedResource.get(column, def)).collect(Collectors.toCollection(ConcurrentSkipListSet::new));
+    }
+
+    public abstract ConcurrentSkipListSet<CachedResource<C>> listTable(String table);
 
     public abstract void create(String table, String primaryKey, ConcurrentSkipListSet<DatabaseValue<?>> values);
 

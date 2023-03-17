@@ -59,6 +59,40 @@ public class BaseEventHandler {
         });
     }
 
+    public static void unbake(BaseEventListener listener, Class<? extends BaseEvent> clazz) {
+        ConcurrentSkipListSet<RegisteredListener<?>> listeners = getRegularEvents().get(clazz);
+        if (listeners == null) return;
+
+        listeners.forEach(registeredListener -> {
+            if (registeredListener.getListener().equals(listener)) getRegularEvents().get(clazz).remove(registeredListener);
+        });
+    }
+
+    public static void unbake(BaseEventListener listener) {
+        getRegularEvents().forEach((aClass, registeredListeners) -> {
+            registeredListeners.forEach(registeredListener -> {
+                if (registeredListener.getListener().equals(listener)) getRegularEvents().get(aClass).remove(registeredListener);
+            });
+        });
+    }
+
+    public static void unbake(IEventable eventable, Class<? extends BaseEvent> clazz) {
+        ConcurrentSkipListSet<RegisteredListener<?>> listeners = getRegularEvents().get(clazz);
+        if (listeners == null) return;
+
+        listeners.forEach(registeredListener -> {
+            if (registeredListener.getEventable().equals(eventable)) getRegularEvents().get(clazz).remove(registeredListener);
+        });
+    }
+
+    public static void unbake(Class<? extends BaseEvent> clazz) {
+        getRegularEvents().remove(clazz);
+    }
+
+    public static void unbakeAll() {
+        setRegularEvents(new ConcurrentHashMap<>());
+    }
+
     public static ConcurrentSkipListSet<RegisteredListener<?>> getRegularListeners(Class<? extends BaseEvent> event) {
         ConcurrentSkipListSet<RegisteredListener<?>> listeners = new ConcurrentSkipListSet<>();
 

@@ -160,7 +160,7 @@ public class DatabaseValue<V> implements Comparable<DatabaseValue<?>> {
 
     public String getSQLType() {
         if (isString()) {
-            return "VARCHAR(255)";
+            return "VARCHAR(3072)";
         } else if (isInteger()) {
             return "INTEGER(11)";
         } else if (isLong()) {
@@ -180,7 +180,7 @@ public class DatabaseValue<V> implements Comparable<DatabaseValue<?>> {
         } else if (isDate()) {
             return "TIMESTAMP(6)";
         } else {
-            return "VARCHAR(255)";
+            return "VARCHAR(3072)";
         }
     }
 

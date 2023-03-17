@@ -4,12 +4,22 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
+import tv.quaint.storage.resources.cache.CachedResource;
 import tv.quaint.storage.resources.databases.DatabaseResource;
 import tv.quaint.storage.resources.databases.configurations.DatabaseConfig;
+import tv.quaint.storage.resources.databases.events.MongoResourceStatementEvent;
+import tv.quaint.storage.resources.databases.events.MongoStatementEvent;
 import tv.quaint.storage.resources.databases.processing.DatabaseValue;
+import tv.quaint.utils.MathUtils;
 
+import java.sql.Connection;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -22,13 +32,85 @@ public class MongoResource extends DatabaseResource<MongoClient> {
         return new MongoClientURI(getConfig().getLink());
     }
 
-    public MongoClient connect() {
+    @Override
+    protected MongoClient connect() {
         return new MongoClient(getMongoClientURI());
     }
 
     @Override
+    public boolean testConnection() {
+        return false;
+    }
+
+    @Override
+    public ConcurrentSkipListSet<CachedResource<MongoClient>> listTable(String table) {
+        ConcurrentSkipListSet<CachedResource<MongoClient>> cachedResources = new ConcurrentSkipListSet<>();
+        String database = table;
+        if (getMongoClientURI().getDatabase() != null) database = getMongoClientURI().getDatabase();
+        if (! databaseExists(database)) {
+            try {
+                throw new RuntimeException("Database '" + database + "' does not exist! You need to specify a database in the Mongo Connection URI.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return cachedResources;
+            }
+        }
+        if (! exists(table)) {
+            try {
+                throw new RuntimeException("Collection '" + table + "' does not exist! You need to create it first.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return cachedResources;
+            }
+        }
+        for (Document document : getCollection(table).find()) {
+            final CachedResource<MongoClient>[] cachedResource = new CachedResource[]{null};
+
+            document.forEach((key, value) -> {
+                if (cachedResource[0] == null) {
+                    cachedResource[0] = new CachedResource<>(MongoClient.class, key, value);
+                } else {
+                    cachedResource[0].write(key, value);
+                }
+            });
+
+            if (cachedResource[0] != null)
+                cachedResources.add(cachedResource[0]);
+        }
+        getBlockingFuture().complete(true);
+        return cachedResources;
+    }
+
+    @Override
     public void create(String table, String primaryKey, ConcurrentSkipListSet<DatabaseValue<?>> values) {
-        getDatabase().createCollection(table);
+        if (exists(table)) return;
+        String database = table;
+        if (getMongoClientURI().getDatabase() != null) database = getMongoClientURI().getDatabase();
+        // Below code might not need implementation.
+//        if (! databaseExists(database)) {
+//            try {
+//                throw new RuntimeException("Database '" + database + "' does not exist! You need to specify a database in the Mongo Connection URI.");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                return;
+//            }
+//        }
+        new MongoResourceStatementEvent(this, MongoStatementEvent.createCollection(table)).fire();
+        getDatabase(database).createCollection(table);
+        getBlockingFuture().complete(true);
+    }
+
+    public boolean databaseExists(String database) {
+        boolean exists = databaseNames().contains(database);
+        getBlockingFuture().complete(true);
+        return exists;
+    }
+
+    public ConcurrentSkipListSet<String> databaseNames() {
+        new MongoResourceStatementEvent(this, MongoStatementEvent.getCollectionNames()).fire();
+        ConcurrentSkipListSet<String> databaseNames = getConnection().listDatabaseNames().into(new ConcurrentSkipListSet<>());
+        getBlockingFuture().complete(true);
+        return databaseNames;
     }
 
     @Override
@@ -38,29 +120,37 @@ public class MongoResource extends DatabaseResource<MongoClient> {
             DatabaseValue<?> databaseValue = fromCollectionOrArray(value.getKey(), value.getValue());
             map.put(databaseValue.getKey(), databaseValue.getValue());
         }
-        getDatabase().getCollection(table).insertOne(new Document(map));
+        Document document = new Document(map);
+        getCollection(table).insertOne(document);
+        new MongoResourceStatementEvent(this, MongoStatementEvent.insert(table,
+                document.toJson())).fire();
+        getBlockingFuture().complete(true);
     }
 
     @Override
     public <O> O get(String table, String discriminatorKey, String discriminator, String key, Class<O> def) {
-        Document document = getDatabase().getCollection(table).find(new Document(discriminatorKey, discriminator)).first();
+        O o = null;
+        Document document = getCollection(table).find(new Document(discriminatorKey, discriminator)).first();
         if (document != null) {
             Object obj = document.get(key);
-            if (def.isArray()) {
-                return (O) getArrayFromString((String) obj, def);
-            } else if (def.isAssignableFrom(Collection.class)) {
-                return (O) getCollectionFromString((String) obj, def);
-            } else {
-                return (O) obj;
+            if (obj != null) {
+                if (def.isArray()) {
+                    o = (O) getArrayFromString((String) obj, def);
+                } else if (def.isAssignableFrom(Collection.class)) {
+                    o = (O) getCollectionFromString((String) obj, def);
+                } else {
+                    o = (O) obj;
+                }
             }
-        } else {
-            return null;
         }
+        getBlockingFuture().complete(true);
+        return o;
     }
 
     @Override
     public void onReload() {
-
+        setCachedConnection(connect());
+        setLastReload(new Date());
     }
 
     @Override
@@ -76,41 +166,77 @@ public class MongoResource extends DatabaseResource<MongoClient> {
 
     @Override
     public void delete(String table, String discriminatorKey, String discriminator) {
-        getDatabase().getCollection(table).deleteOne(new Document(discriminatorKey, discriminator));
+        DeleteResult result = getCollection(table).deleteOne(new Document(discriminatorKey, discriminator));
+        new MongoResourceStatementEvent(this,
+                MongoStatementEvent.remove(table, getDocument(table, discriminatorKey, discriminator).toJson())).fire();
+        getBlockingFuture().complete(true);
+    }
+
+    public Document getDocument(String table, String discriminatorKey, String discriminator) {
+        Document document = getCollection(table).find(new Document(discriminatorKey, discriminator)).first();
+        getBlockingFuture().complete(true);
+        return document;
     }
 
     @Override
     public void delete(String table) {
-        getDatabase().getCollection(table).drop();
+        getCollection(table).drop();
+        new MongoResourceStatementEvent(this, MongoStatementEvent.dropCollection(table)).fire();
+        getBlockingFuture().complete(true);
     }
 
     @Override
     public boolean exists(String table, String discriminatorKey, String discriminator) {
-        return getDatabase().getCollection(table).find(new Document(discriminatorKey, discriminator)).first() != null;
+        boolean exists = getCollection(table).find(new Document(discriminatorKey, discriminator)).first() != null;
+        getBlockingFuture().complete(true);
+        return exists;
     }
 
     @Override
     public boolean exists(String table) {
-        return getDatabase().getCollection(table).count() > 0;
+        String database = table;
+        if (getMongoClientURI().getDatabase() != null) database = getMongoClientURI().getDatabase();
+        return getCollections(database).contains(table);
+    }
+
+    public ConcurrentSkipListSet<String> getCollections(String database) {
+        ConcurrentSkipListSet<String> dbs = getDatabase(database).listCollectionNames().into(new ConcurrentSkipListSet<>());
+        getBlockingFuture().complete(true);
+        return dbs;
     }
 
     @Override
     public <V> void updateSingle(String table, String discriminatorKey, String discriminator, String key, V value) {
         DatabaseValue<?> databaseValue = fromCollectionOrArray(key, value);
-        getDatabase().getCollection(table).updateOne(new Document(discriminatorKey, discriminator),
-                new Document("$set", new Document(key, databaseValue.getValue())));
+        Document document = new Document(key, databaseValue.getValue());
+        getCollection(table).updateOne(new Document(discriminatorKey, discriminator),
+                new Document("$set", document));
+        new MongoResourceStatementEvent(this, MongoStatementEvent.update(table, document.toJson())).fire();
+        getBlockingFuture().complete(true);
     }
 
     @Override
     public <V> void updateMultiple(String table, String discriminatorKey, String discriminator, ConcurrentSkipListMap<String, V> values) {
-        values.forEach((k, v) -> updateSingle(table, discriminatorKey, discriminator, k, v));
+        Document document = new Document();
+        for (String key : values.keySet()) {
+            DatabaseValue<?> databaseValue = fromCollectionOrArray(key, values.get(key));
+            document.append(key, databaseValue.getValue());
+        }
+        getCollection(table).updateOne(new Document(discriminatorKey, discriminator),
+                new Document("$set", document));
+        new MongoResourceStatementEvent(this, MongoStatementEvent.update(table, document.toJson())).fire();
+        getBlockingFuture().complete(true);
     }
 
-    public MongoDatabase getDatabase() {
-        return getCachedConnection().getDatabase(getMongoClientURI().getDatabase());
+    public MongoDatabase getDatabase(String database) {
+        new MongoResourceStatementEvent(this, MongoStatementEvent.createDatabase(database)).fire();
+        return getConnection().getDatabase(database);
     }
 
     public MongoCollection<Document> getCollection(String collectionName) {
-        return getDatabase().getCollection(collectionName);
+        String database = collectionName;
+        if (getMongoClientURI().getDatabase() != null) database = getMongoClientURI().getDatabase();
+        new MongoResourceStatementEvent(this, MongoStatementEvent.getCollection(collectionName)).fire();
+        return getDatabase(database).getCollection(collectionName);
     }
 }
