@@ -31,77 +31,47 @@ public class CachedResourceUtils {
         }
     }
 
-    public static <C, R extends DatabaseResource<C>> DatabaseSingle<C, R> pushToDatabase(String table, String discriminatorKey, String discriminator, CachedResource<?> resource, R database) {
+    public static <C, R extends DatabaseResource<C>> void pushToDatabase(String table, String discriminatorKey, String discriminator, CachedResource<?> resource, R database) {
+        DatabaseSingle<?, ?> single;
         switch (database.getConfig().getType()) {
             case MYSQL:
-                return (DatabaseSingle<C, R>) new MySQLSingle((MySQLResource) database, table, discriminatorKey, discriminator);
+                single = new MySQLSingle((MySQLResource) database, table, discriminatorKey, discriminator, resource);
+                break;
             case MONGO:
-                return (DatabaseSingle<C, R>) new MongoSingle((MongoResource) database, table, discriminatorKey, discriminator);
+                single = new MongoSingle((MongoResource) database, table, discriminatorKey, discriminator, resource);
+                break;
             case SQLITE:
-                return (DatabaseSingle<C, R>) new SQLiteSingle((SQLiteResource) database, table, discriminatorKey, discriminator);
+                single = new SQLiteSingle((SQLiteResource) database, table, discriminatorKey, discriminator, resource);
+                break;
             default:
-                return null;
+                return;
         }
+
+        single.push();
     }
 
     public static MongoSingle pushToDatabase(String table, String discriminatorKey, String discriminator, CachedResource<?> resource, MongoResource database) {
-        ConcurrentSkipListSet<DatabaseValue<?>> values = new ConcurrentSkipListSet<>();
-        for (Map.Entry<String, Object> entry : resource.getCachedData().entrySet()) {
-            values.add(new DatabaseValue<>(entry.getKey(), entry.getValue()));
-        }
+        MongoSingle single = new MongoSingle(database, table, discriminatorKey, discriminator, resource);
 
-        database.create(table, discriminatorKey, values);
-        if (database.exists(table, discriminatorKey, discriminator)) {
-            ConcurrentSkipListMap<String, Object> map = new ConcurrentSkipListMap<>();
-            for (DatabaseValue<?> value : values) {
-                map.put(value.getKey(), value.getValue());
-            }
+        single.push();
 
-            database.updateMultiple(table, discriminatorKey, discriminator, map);
-        } else {
-            database.insert(table, values);
-        }
-        return new MongoSingle(database, table, discriminatorKey, discriminator);
+        return single;
     }
 
     public static MySQLSingle pushToDatabase(String table, String discriminatorKey, String discriminator, CachedResource<?> resource, MySQLResource database) {
-        ConcurrentSkipListSet<DatabaseValue<?>> values = new ConcurrentSkipListSet<>();
-        for (Map.Entry<String, Object> entry : resource.getCachedData().entrySet()) {
-            values.add(new DatabaseValue<>(entry.getKey(), entry.getValue()));
-        }
+        MySQLSingle single = new MySQLSingle(database, table, discriminatorKey, discriminator, resource);
 
-        database.create(table, discriminatorKey, values);
-        if (database.exists(table, discriminatorKey, discriminator)) {
-            ConcurrentSkipListMap<String, Object> map = new ConcurrentSkipListMap<>();
-            for (DatabaseValue<?> value : values) {
-                map.put(value.getKey(), value.getValue());
-            }
+        single.push();
 
-            database.updateMultiple(table, discriminatorKey, discriminator, map);
-        } else {
-            database.insert(table, values);
-        }
-        return new MySQLSingle(database, table, discriminatorKey, discriminator);
+        return single;
     }
 
     public static SQLiteSingle pushToDatabase(String table, String discriminatorKey, String discriminator, CachedResource<?> resource, SQLiteResource database) {
-        ConcurrentSkipListSet<DatabaseValue<?>> values = new ConcurrentSkipListSet<>();
-        for (Map.Entry<String, Object> entry : resource.getCachedData().entrySet()) {
-            values.add(new DatabaseValue<>(entry.getKey(), entry.getValue()));
-        }
+        SQLiteSingle single = new SQLiteSingle(database, table, discriminatorKey, discriminator, resource);
 
-        database.create(table, discriminatorKey, values);
-        if (database.exists(table, discriminatorKey, discriminator)) {
-            ConcurrentSkipListMap<String, Object> map = new ConcurrentSkipListMap<>();
-            for (DatabaseValue<?> value : values) {
-                map.put(value.getKey(), value.getValue());
-            }
+        single.push();
 
-            database.updateMultiple(table, discriminatorKey, discriminator, map);
-        } else {
-            database.insert(table, values);
-        }
-        return new SQLiteSingle(database, table, discriminatorKey, discriminator);
+        return single;
     }
 
     public static ConcurrentSkipListSet<DatabaseValue<?>> getValues(CachedResource<?> resource) {
@@ -113,25 +83,25 @@ public class CachedResourceUtils {
     }
 
     public static <C, R extends DatabaseResource<C>> void updateCache(String table, String discriminatorKey, String discriminator, CachedResource<?> resource, R database) {
+        DatabaseSingle<?, ?> single;
         switch (database.getConfig().getType()) {
             case MYSQL:
-                MySQLSingle mySQLSingle = new MySQLSingle((MySQLResource) database, table, discriminatorKey, discriminator);
-                resource.getCachedData().forEach((s, o) -> {
-                    resource.write(s, mySQLSingle.get(s, o.getClass()));
-                });
+                single = new MySQLSingle((MySQLResource) database, table, discriminatorKey, discriminator, resource);
                 break;
             case MONGO:
-                MongoSingle mongoSingle = new MongoSingle((MongoResource) database, table, discriminatorKey, discriminator);
-                resource.getCachedData().forEach((s, o) -> {
-                    resource.write(s, mongoSingle.get(s, o.getClass()));
-                });
+                single = new MongoSingle((MongoResource) database, table, discriminatorKey, discriminator, resource);
                 break;
             case SQLITE:
-                SQLiteSingle sqLiteSingle = new SQLiteSingle((SQLiteResource) database, table, discriminatorKey, discriminator);
-                resource.getCachedData().forEach((s, o) -> {
-                    resource.write(s, sqLiteSingle.get(s, o.getClass()));
-                });
+                single = new SQLiteSingle((SQLiteResource) database, table, discriminatorKey, discriminator, resource);
                 break;
+            default:
+                return;
         }
+
+        single.get();
+
+        resource.getCachedData().forEach((s, o) -> {
+            resource.write(s, single.getCachedResource().getCachedData().get(s));
+        });
     }
 }

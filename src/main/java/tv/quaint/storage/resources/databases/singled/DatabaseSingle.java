@@ -3,8 +3,11 @@ package tv.quaint.storage.resources.databases.singled;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import tv.quaint.storage.resources.cache.CachedResource;
 import tv.quaint.storage.resources.databases.DatabaseResource;
 import tv.quaint.storage.resources.databases.processing.DatabaseValue;
+
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class DatabaseSingle<C, R extends DatabaseResource<C>> implements Comparable<DatabaseSingle<?, ?>> {
     @Getter @Setter
@@ -15,12 +18,15 @@ public class DatabaseSingle<C, R extends DatabaseResource<C>> implements Compara
     String discriminatorKey;
     @Getter @Setter
     String discriminator;
+    @Getter @Setter
+    CachedResource<?> cachedResource;
 
-    public DatabaseSingle(R database, String table, String discriminatorKey, String discriminator) {
+    public DatabaseSingle(R database, String table, String discriminatorKey, String discriminator, CachedResource<?> cachedResource) {
         this.database = database;
         this.table = table;
         this.discriminatorKey = discriminatorKey;
         this.discriminator = discriminator;
+        this.cachedResource = cachedResource;
     }
 
     public <V> void update(DatabaseValue<V> value) {
@@ -45,6 +51,25 @@ public class DatabaseSingle<C, R extends DatabaseResource<C>> implements Compara
 
     public <V> V getOrSetDefault(String key, V def) {
         return database.getOrSetDefault(table, discriminatorKey, discriminator, key, def);
+    }
+
+    public void push() {
+        ConcurrentSkipListSet<DatabaseValue<?>> values = new ConcurrentSkipListSet<>();
+
+        cachedResource.getCachedData().forEach((key, value) -> values.add(new DatabaseValue<>(key, value)));
+
+        if (! database.exists(table)) database.create(table, discriminatorKey, values);
+        if (exists()) database.updateMultiple(table, discriminatorKey, discriminator, cachedResource.getCachedData());
+        else {
+            database.insert(table, values);
+        }
+    }
+
+    public void get() {
+        cachedResource.getCachedData().forEach((key, value) -> {
+            Object o = database.get(table, discriminatorKey, discriminator, key, value.getClass());
+            if (o != null) cachedResource.getCachedData().put(key, o);
+        });
     }
 
     @Override
