@@ -11,7 +11,9 @@ import tv.quaint.storage.resources.databases.processing.DatabaseValue;
 import tv.quaint.utils.MathUtils;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
@@ -343,7 +345,10 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     public boolean exists(String table) {
         boolean exists = false;
         try (Connection connection = getConnection()) {
-            ResultSet set = connection.prepareStatement("SELECT * FROM " + table).executeQuery();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table);
+            if (statement == null || statement.isClosed()) return false;
+
+            ResultSet set = statement.executeQuery();
             exists = set.next();
         } catch (Exception e) {
             if (! e.getMessage().contains("doesn't exist")) e.printStackTrace();
@@ -355,7 +360,8 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
     @Override
     public <V> void updateSingle(String table, String discriminatorKey, String discriminator, String key, V value) {
         try (Connection connection = getConnection()) {
-            connection.prepareStatement(getUpdateString(table, discriminatorKey, discriminator, key, fromCollectionOrArray(key, value))).execute();
+            PreparedStatement statement = connection.prepareStatement(getUpdateString(table, discriminatorKey, discriminator, key, fromCollectionOrArray(key, value)));
+            if (statement != null && ! statement.isClosed()) statement.execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -367,7 +373,8 @@ public abstract class SQLResource extends DatabaseResource<Connection> {
         Collection<DatabaseValue<?>> databaseValues = DatabaseResource.collectionOf(values);
 
         try (Connection connection = getConnection()) {
-            connection.prepareStatement(getUpdateMultipleString(table, discriminatorKey, discriminator, databaseValues.toArray(new DatabaseValue[0]))).execute();
+            PreparedStatement statement = connection.prepareStatement(getUpdateMultipleString(table, discriminatorKey, discriminator, databaseValues.toArray(new DatabaseValue[0])));
+            if (statement != null && ! statement.isClosed()) statement.execute();
         } catch (Exception e) {
             e.printStackTrace();
         }

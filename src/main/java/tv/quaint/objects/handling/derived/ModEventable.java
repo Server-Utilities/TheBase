@@ -35,6 +35,11 @@ public abstract class ModEventable implements IModifierEventable {
     }
 
     @Override
+    public boolean isStreamline() {
+        return getModifierType().equals(ModifierType.STREAMLINE);
+    }
+
+    @Override
     public void initializeDataFolder() {
         getDataFolder().mkdirs();
     }
