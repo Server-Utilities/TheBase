@@ -96,11 +96,13 @@ afterEvaluate {
     publishing {
         publications {
             maven(MavenPublication) {
-                groupId = 'com.github.server-utilities'
-                artifactId = 'TheBase'
+                groupId = project.group
+                artifactId = project.name
                 version = project.version
 
                 from components.java
+
+                artifact shadowJar
             }
         }
     }
