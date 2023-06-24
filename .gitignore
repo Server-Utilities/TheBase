@@ -51,3 +51,6 @@ bin/
 publish.gradle
 ./publish.gradle
 *publish.gradle
+/gradle/
+/.github/
+/target/
