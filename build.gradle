@@ -21,8 +21,8 @@ dependencies {
     shadow("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
 
-    implementation("com.github.simplix-softworks:simplixstorage:3.2.5")
-    shadow("com.github.simplix-softworks:simplixstorage:3.2.5")
+    implementation("com.github.simplix-softworks:simplixstorage:3.2.6")
+    shadow("com.github.simplix-softworks:simplixstorage:3.2.6")
 
     implementation("org.pf4j:pf4j:3.8.0")
     shadow("org.pf4j:pf4j:3.8.0")
