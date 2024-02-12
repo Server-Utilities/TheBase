@@ -6,7 +6,6 @@ import de.leonhard.storage.Toml;
 import de.leonhard.storage.Yaml;
 import de.leonhard.storage.internal.FlatFile;
 import lombok.Getter;
-import org.bson.Document;
 import tv.quaint.objects.handling.derived.IModifierEventable;
 
 import java.io.File;
@@ -69,13 +68,8 @@ public class StorageUtils {
         if (clazz.equals(Config.class)) return SupportedStorageType.YAML;
         if (clazz.equals(Json.class)) return SupportedStorageType.JSON;
         if (clazz.equals(Toml.class)) return SupportedStorageType.TOML;
-        if (clazz.equals(Document.class)) return SupportedStorageType.MONGO;
 
         return null;
-    }
-
-    public static Document getWhere(String key, Object value) {
-        return new Document(key, value);
     }
 
     public static String parseDotsMongo(String key) {

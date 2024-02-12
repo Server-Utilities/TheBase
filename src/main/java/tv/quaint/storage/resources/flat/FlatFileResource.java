@@ -13,16 +13,12 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+@Getter @Setter
 public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
-    @Getter @Setter
     T resource;
-    @Getter
     final String fileName;
-    @Getter
     final File parentDirectory;
-    @Getter
     final File selfFile;
-    @Getter
     final boolean selfContained;
 
     public FlatFileResource(Class<T> resourceType, String fileName, File parentDirectory, boolean selfContained) {

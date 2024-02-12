@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import tv.quaint.objects.Classifiable;
 import tv.quaint.storage.StorageUtils;
-import tv.quaint.storage.resources.cache.CachedResource;
 import tv.quaint.utils.MathUtils;
 import tv.quaint.utils.StringUtils;
 
@@ -16,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Collectors;
 
 public abstract class StorageResource<T> implements Comparable<StorageResource<?>>, Classifiable<T> {
     @Getter
@@ -134,17 +132,6 @@ public abstract class StorageResource<T> implements Comparable<StorageResource<?
 
     public String getDiscriminatorAsString() {
         return discriminator + "";
-    }
-
-    public List<String> getStringListFromConfig(CachedResource<?> resource, String key, List<String> def, String prefix, String suffix) {
-        String defString = prefix + StringUtils.listToString(def, ",") + suffix;
-        String string = resource.getOrSetDefault(key, defString);
-        string = string.substring(1, string.length() - 1);
-        return StringUtils.stringToList(string, ",");
-    }
-
-    public ConcurrentSkipListSet<String> getStringSetFromConfig(CachedResource<?> resource, String key, List<String> def, String prefix, String suffix) {
-        return new ConcurrentSkipListSet<>(getStringListFromConfig(resource, key, def, prefix, suffix));
     }
 
     public String getStringFromStringList(List<String> list, String prefix, String suffix) {

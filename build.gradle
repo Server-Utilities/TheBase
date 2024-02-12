@@ -1,105 +1,65 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.1"
-//    id "maven-publish"
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
-apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
-
 group = 'com.github.server-utilities'
-//project.version = "1.5-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    jcenter()
+    mavenLocal()
+
     // JitPack
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation("org.projectlombok:lombok:1.18.24")
-    shadow("org.projectlombok:lombok:1.18.24")
-    annotationProcessor("org.projectlombok:lombok:1.18.24")
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    shadow 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-    implementation("com.github.simplix-softworks:simplixstorage:3.2.6")
-    shadow("com.github.simplix-softworks:simplixstorage:3.2.6")
+    implementation 'com.github.simplix-softworks:simplixstorage:3.2.7'
+    shadow 'com.github.simplix-softworks:simplixstorage:3.2.7'
 
-    implementation("org.pf4j:pf4j:3.8.0")
-    shadow("org.pf4j:pf4j:3.8.0")
+    implementation 'com.google.guava:guava:33.0.0-jre'
+    shadow 'com.google.guava:guava:33.0.0-jre'
 
-    implementation("commons-codec:commons-codec:1.15")
-    shadow("commons-codec:commons-codec:1.15")
+    implementation 'com.google.code.gson:gson:2.10.1'
+    shadow 'com.google.code.gson:gson:2.10.1'
 
-    implementation("com.google.guava:guava:30.1.1-jre")
-    shadow("com.google.guava:guava:30.1.1-jre")
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    shadow 'mysql:mysql-connector-java:8.0.33'
 
-    implementation("com.google.code.gson:gson:2.10.1")
-    shadow("com.google.code.gson:gson:2.10.1")
-    
-    implementation("org.mongodb:mongo-java-driver:3.12.11")
-    shadow("org.mongodb:mongo-java-driver:3.12.11")
-    
-    implementation("mysql:mysql-connector-java:8.0.31")
-    shadow("mysql:mysql-connector-java:8.0.31")
-    
-    implementation("org.xerial:sqlite-jdbc:3.40.0.0")
-    shadow("org.xerial:sqlite-jdbc:3.40.0.0")
-    
-    implementation("com.zaxxer:HikariCP:4.0.3")
-    shadow("com.zaxxer:HikariCP:4.0.3")
-    
-    implementation("net.objecthunter:exp4j:0.4.8")
-    shadow("net.objecthunter:exp4j:0.4.8")
+    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
+    shadow 'org.xerial:sqlite-jdbc:3.45.1.0'
 
-    implementation("com.google.re2j:re2j:1.7")
-    shadow("com.google.re2j:re2j:1.7")
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    shadow 'com.zaxxer:HikariCP:5.1.0'
+
+    implementation 'net.objecthunter:exp4j:0.4.8'
+    shadow 'net.objecthunter:exp4j:0.4.8'
+
+    implementation 'com.google.re2j:re2j:1.7'
+    shadow 'com.google.re2j:re2j:1.7'
 }
 
 shadowJar {
-    relocate("de.leonhard", "tv.quaint.thebase.lib.leonhard")
-    relocate("net.kyori.event", "tv.quaint.thebase.lib.eventbus")
-    relocate("com.github.benmanes.caffeine", "tv.quaint.thebase.lib.caffeine")
-    relocate("okio", "tv.quaint.thebase.lib.okio")
-    relocate("okhttp3", "tv.quaint.thebase.lib.okhttp3")
-    relocate("net.bytebuddy", "tv.quaint.thebase.lib.bytebuddy")
-    relocate("me.lucko.commodore", "tv.quaint.thebase.lib.commodore")
-    relocate("org.mariadb.jdbc", "tv.quaint.thebase.lib.mariadb")
-    relocate("com.mysql", "tv.quaint.thebase.lib.mysql")
-    relocate("org.postgresql", "tv.quaint.thebase.lib.postgresql")
-    relocate("com.zaxxer.hikari", "tv.quaint.thebase.lib.hikari")
-    relocate("com.mongodb", "tv.quaint.thebase.lib.mongodb")
-    relocate("org.bson", "tv.quaint.thebase.lib.bson")
-    relocate("redis.clients.jedis", "tv.quaint.thebase.lib.jedis")
-    relocate("com.rabbitmq", "tv.quaint.thebase.lib.rabbitmq")
-    relocate("org.apache.commons", "tv.quaint.thebase.lib.apache.commons")
-    relocate("ninja.leaping.configurate", "tv.quaint.thebase.lib.configurate")
-    relocate("org.yaml.snakeyaml", "tv.quaint.thebase.lib.yaml")
-    relocate("net.objecthunter.exp4j", "tv.quaint.thebase.lib.exp4j")
-    relocate("com.google.re2j", "tv.quaint.thebase.lib.re2j")
-    relocate("com.google.common", "tv.quaint.thebase.lib.google.common")
-    relocate("com.google.gson", "tv.quaint.thebase.lib.google.gson")
-    relocate("org.pf4j", "tv.quaint.thebase.lib.pf4j")
+    relocate('de.leonhard', 'tv.quaint.thebase.lib.leonhard')
+    relocate('com.mysql', 'tv.quaint.thebase.lib.mysql')
+    relocate('com.zaxxer.hikari', 'tv.quaint.thebase.lib.hikari')
+    relocate('net.objecthunter.exp4j', 'tv.quaint.thebase.lib.exp4j')
+    relocate('com.google.re2j', 'tv.quaint.thebase.lib.re2j')
+    relocate('com.google.common', 'tv.quaint.thebase.lib.google.common')
+    relocate('com.google.gson', 'tv.quaint.thebase.lib.google.gson')
 
-//    archiveFileName = "$archiveBaseName-$archiveVersion.$archiveExtension"
-    archiveName = "$baseName-$version.$extension"
+    archiveFileName = project.name + '-' + project.version + '.jar'
 }
 
 artifacts {
     archives shadowJar
 }
 
-//afterEvaluate {
-//    publishing {
-//        publications {
-//            maven(MavenPublication) {
-//                groupId = project.group
-//                artifactId = project.name
-//                version = project.version
-//
-//                from components.java
-//
-//                artifact shadowJar
-//            }
-//        }
-//    }
-//}
+wrapper {
+    gradleVersion = '8.6'
+    distributionType = Wrapper.DistributionType.BIN
+}
