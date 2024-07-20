@@ -16,22 +16,22 @@ import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+@Getter
 public abstract class StorageResource<T> implements Comparable<StorageResource<?>>, Classifiable<T> {
-    @Getter
     private final Date initializeDate;
-    @Getter @Setter
+    @Setter
     private StorageUtils.SupportedStorageType type;
-    @Getter @Setter
+    @Setter
     private Class<T> resourceType;
-    @Getter @Setter
+    @Setter
     private String discriminatorKey;
-    @Getter @Setter
+    @Setter
     private Object discriminator;
-    @Getter @Setter
+    @Setter
     private int hangingMillis;
-    @Getter @Setter
+    @Setter
     private Date lastReload;
-    @Getter @Setter
+    @Setter
     private ConcurrentSkipListMap<String, Object> map;
 
     public StorageResource(Class<T> resourceType, String discriminatorKey, Object discriminator) {

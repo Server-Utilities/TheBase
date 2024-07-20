@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class ObjectUtils {
     public static <K, V> Map<K, V> interpolateMap(Map<K, V> map) {
-        if (map.size() == 0) {
+        if (map.isEmpty()) {
             return map;
         }
 

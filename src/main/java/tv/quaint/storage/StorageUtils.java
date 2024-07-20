@@ -48,19 +48,14 @@ public class StorageUtils {
         try {
             Files.copy(updateFile.toPath(), file.toPath());
             return true;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             return false;
         }
     }
 
     public static SupportedStorageType getStorageTypeFromLeonhard(Class<? extends FlatFile> leonhard) {
-        if (leonhard.equals(Yaml.class)) return SupportedStorageType.YAML;
-        if (leonhard.equals(Config.class)) return SupportedStorageType.YAML;
-        if (leonhard.equals(Json.class)) return SupportedStorageType.JSON;
-        if (leonhard.equals(Toml.class)) return SupportedStorageType.TOML;
-
-        return null;
+        return getStorageType(leonhard);
     }
 
     public static SupportedStorageType getStorageType(Class<?> clazz) {
@@ -86,10 +81,10 @@ public class StorageUtils {
                 try (InputStream in = loader.getResourceAsStream(fileName)) {
                     assert in != null;
                     Files.copy(in, toEnsure.toPath());
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
@@ -100,7 +95,7 @@ public class StorageUtils {
             try {
                 parentDirectory.mkdirs();
                 toEnsure.createNewFile();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
@@ -111,7 +106,7 @@ public class StorageUtils {
         if (! file.exists()) {
             try {
                 file.createNewFile();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }

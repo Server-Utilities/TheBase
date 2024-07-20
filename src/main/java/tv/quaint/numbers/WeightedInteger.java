@@ -7,20 +7,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 import java.util.Random;
 
+@Setter
+@Getter
 public class WeightedInteger extends Number implements Comparable<WeightedInteger> {
-    @Getter
-    @Setter
-    Random RNG;
-    @Getter @Setter
-    WeightedInteger min;
-    @Getter @Setter
-    WeightedInteger max;
-    @Getter @Setter
-    Date separator;
-    @Getter @Setter
-    int absoluteMin;
-    @Getter @Setter
-    int absoluteMax;
+    private Random RNG;
+    private WeightedInteger min;
+    private WeightedInteger max;
+    private Date separator;
+    private int absoluteMin;
+    private int absoluteMax;
 
     public WeightedInteger(int min, int max, Random RNG) {
         setSeparator(new Date());
