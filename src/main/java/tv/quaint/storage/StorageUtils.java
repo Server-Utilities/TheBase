@@ -1,10 +1,9 @@
 package tv.quaint.storage;
 
-import de.leonhard.storage.Config;
-import de.leonhard.storage.Json;
-import de.leonhard.storage.Toml;
-import de.leonhard.storage.Yaml;
+import de.leonhard.storage.*;
 import de.leonhard.storage.internal.FlatFile;
+import de.leonhard.storage.internal.settings.ConfigSettings;
+import de.leonhard.storage.internal.settings.ReloadSettings;
 import lombok.Getter;
 import tv.quaint.objects.handling.derived.IModifierEventable;
 
@@ -90,6 +89,10 @@ public class StorageUtils {
         }
     }
 
+    public static void ensureFileFromSelf(ClassLoader loader, File parentDirectory, File toEnsure) {
+        ensureFileFromSelf(loader, parentDirectory, toEnsure, toEnsure.getName());
+    }
+
     public static void ensureFileNoDefault(File parentDirectory, File toEnsure) {
         if (! toEnsure.exists()) {
             try {
@@ -110,5 +113,20 @@ public class StorageUtils {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static SimplixBuilder fromFile(File file) {
+        return SimplixBuilder.fromFile(file)
+                .setReloadSettings(getDefaultReloadSettings())
+                .setConfigSettings(getDefaultConfigSettings())
+                ;
+    }
+
+    public static ReloadSettings getDefaultReloadSettings() {
+        return ReloadSettings.INTELLIGENT;
+    }
+
+    public static ConfigSettings getDefaultConfigSettings() {
+        return ConfigSettings.PRESERVE_COMMENTS;
     }
 }

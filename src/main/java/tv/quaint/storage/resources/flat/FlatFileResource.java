@@ -2,8 +2,11 @@ package tv.quaint.storage.resources.flat;
 
 import de.leonhard.storage.*;
 import de.leonhard.storage.internal.FlatFile;
+import de.leonhard.storage.internal.settings.ConfigSettings;
+import de.leonhard.storage.internal.settings.ReloadSettings;
 import lombok.Getter;
 import lombok.Setter;
+import tv.quaint.storage.StorageUtils;
 import tv.quaint.storage.resources.StorageResource;
 
 import java.io.File;
@@ -131,16 +134,16 @@ public class FlatFileResource<T extends FlatFile> extends StorageResource<T> {
         }
 
         if (getResourceType().equals(Config.class)) {
-            return (T) SimplixBuilder.fromFile(file).createConfig();
+            return (T) StorageUtils.fromFile(file).createConfig();
         }
         if (getResourceType().equals(Yaml.class)) {
-            return (T) SimplixBuilder.fromFile(file).createYaml();
+            return (T) StorageUtils.fromFile(file).createYaml();
         }
         if (getResourceType().equals(Json.class)) {
-            return (T) SimplixBuilder.fromFile(file).createJson();
+            return (T) StorageUtils.fromFile(file).createJson();
         }
         if (getResourceType().equals(Toml.class)) {
-            return (T) SimplixBuilder.fromFile(file).createToml();
+            return (T) StorageUtils.fromFile(file).createToml();
         }
         return null;
     }
