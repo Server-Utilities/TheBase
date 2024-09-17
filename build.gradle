@@ -18,8 +18,8 @@ dependencies {
     shadow 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-    implementation 'com.github.simplix-softworks:simplixstorage:3.2.7'
-    shadow 'com.github.simplix-softworks:simplixstorage:3.2.7'
+    implementation 'com.github.simplix-softworks:simplixstorage:3.2.8'
+    shadow 'com.github.simplix-softworks:simplixstorage:3.2.8'
 
     implementation 'com.google.guava:guava:33.0.0-jre'
     shadow 'com.google.guava:guava:33.0.0-jre'
@@ -51,6 +51,16 @@ shadowJar {
     relocate('com.google.re2j', 'tv.quaint.thebase.lib.re2j')
     relocate('com.google.common', 'tv.quaint.thebase.lib.google.common')
     relocate('com.google.gson', 'tv.quaint.thebase.lib.google.gson')
+    relocate('com.google.guava', 'tv.quaint.thebase.lib.google.guava')
+    relocate('org.sqlite', 'tv.quaint.thebase.lib.sqlite')
+    relocate('org.xerial', 'tv.quaint.thebase.lib.xerial')
+    relocate('org.apache.commons', 'tv.quaint.thebase.lib.apache.commons')
+    relocate('org.apache.logging', 'tv.quaint.thebase.lib.apache.logging')
+    relocate('org.slf4j', 'tv.quaint.thebase.lib.slf4j')
+    relocate('org.yaml', 'tv.quaint.thebase.lib.yaml')
+    relocate('org.jetbrains', 'tv.quaint.thebase.lib.jetbrains')
+    relocate('org.bstats', 'tv.quaint.thebase.lib.bstats')
+    relocate('lombok', 'tv.quaint.thebase.lib.lombok')
 
     archiveFileName = project.name + '-' + project.version + '.jar'
 }
