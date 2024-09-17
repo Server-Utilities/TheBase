@@ -18,29 +18,39 @@ dependencies {
     shadow 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    implementation 'com.github.simplix-softworks:simplixstorage:3.2.7'
-    shadow 'com.github.simplix-softworks:simplixstorage:3.2.7'
+    compileOnly('com.github.simplix-softworks:simplixstorage:3.2.7')
+    shadow('com.github.simplix-softworks:simplixstorage:3.2.7')
 
-    implementation 'com.google.guava:guava:33.3.0-jre'
-    shadow 'com.google.guava:guava:33.3.0-jre'
+    compileOnly('com.google.guava:guava:33.3.0-jre')
+    shadow('com.google.guava:guava:33.3.0-jre')
 
-    implementation 'com.google.code.gson:gson:2.11.0'
-    shadow 'com.google.code.gson:gson:2.11.0'
+    compileOnly('com.google.code.gson:gson:2.11.0')
+    shadow('com.google.code.gson:gson:2.11.0')
 
-    implementation 'mysql:mysql-connector-java:8.0.33'
-    shadow 'mysql:mysql-connector-java:8.0.33'
+    compileOnly('mysql:mysql-connector-java:8.0.33')
+    shadow('mysql:mysql-connector-java:8.0.33')
 
-    implementation 'org.xerial:sqlite-jdbc:3.46.1.0'
-    shadow 'org.xerial:sqlite-jdbc:3.46.1.0'
+    compileOnly('org.xerial:sqlite-jdbc:3.46.1.0')
+            .exclude(group: 'org.slf4j', module: 'slf4j-api')
+    shadow('org.xerial:sqlite-jdbc:3.46.1.0')
+            .exclude(group: 'org.slf4j', module: 'slf4j-api')
 
-    implementation 'com.zaxxer:HikariCP:5.1.0'
-    shadow 'com.zaxxer:HikariCP:5.1.0'
+    compileOnly('com.zaxxer:HikariCP:5.1.0')
+            .exclude(group: 'org.slf4j', module: 'slf4j-api')
+            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-api')
+            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-core')
+            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl')
+    shadow('com.zaxxer:HikariCP:5.1.0')
+            .exclude(group: 'org.slf4j', module: 'slf4j-api')
+            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-api')
+            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-core')
+            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl')
 
-    implementation 'net.objecthunter:exp4j:0.4.8'
-    shadow 'net.objecthunter:exp4j:0.4.8'
+    compileOnly('net.objecthunter:exp4j:0.4.8')
+    shadow('net.objecthunter:exp4j:0.4.8')
 
-    implementation 'com.google.re2j:re2j:1.7'
-    shadow 'com.google.re2j:re2j:1.7'
+    compileOnly('com.google.re2j:re2j:1.7')
+    shadow('com.google.re2j:re2j:1.7')
 }
 
 shadowJar {
@@ -56,7 +66,6 @@ shadowJar {
     relocate('org.xerial', 'tv.quaint.thebase.lib.xerial')
     relocate('org.apache.commons', 'tv.quaint.thebase.lib.apache.commons')
     relocate('org.apache.logging', 'tv.quaint.thebase.lib.apache.logging')
-    relocate('org.slf4j', 'tv.quaint.thebase.lib.slf4j')
     relocate('org.yaml', 'tv.quaint.thebase.lib.yaml')
     relocate('org.jetbrains', 'tv.quaint.thebase.lib.jetbrains')
     relocate('org.bstats', 'tv.quaint.thebase.lib.bstats')
