@@ -14,28 +14,28 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.34'
-    shadow 'org.projectlombok:lombok:1.18.34'
-    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    implementation('org.projectlombok:lombok:1.18.34')
+    shadow('org.projectlombok:lombok:1.18.34')
+    annotationProcessor('org.projectlombok:lombok:1.18.34')
 
-    compileOnly('com.github.simplix-softworks:simplixstorage:3.2.7')
+    implementation('com.github.simplix-softworks:simplixstorage:3.2.7')
     shadow('com.github.simplix-softworks:simplixstorage:3.2.7')
 
-    compileOnly('com.google.guava:guava:33.3.0-jre')
+    implementation('com.google.guava:guava:33.3.0-jre')
     shadow('com.google.guava:guava:33.3.0-jre')
 
-    compileOnly('com.google.code.gson:gson:2.11.0')
+    implementation('com.google.code.gson:gson:2.11.0')
     shadow('com.google.code.gson:gson:2.11.0')
 
-    compileOnly('mysql:mysql-connector-java:8.0.33')
+    implementation('mysql:mysql-connector-java:8.0.33')
     shadow('mysql:mysql-connector-java:8.0.33')
 
-    compileOnly('org.xerial:sqlite-jdbc:3.46.1.0')
+    implementation('org.xerial:sqlite-jdbc:3.46.1.0')
             .exclude(group: 'org.slf4j', module: 'slf4j-api')
     shadow('org.xerial:sqlite-jdbc:3.46.1.0')
             .exclude(group: 'org.slf4j', module: 'slf4j-api')
 
-    compileOnly('com.zaxxer:HikariCP:5.1.0')
+    implementation('com.zaxxer:HikariCP:5.1.0')
             .exclude(group: 'org.slf4j', module: 'slf4j-api')
             .exclude(group: 'org.apache.logging.log4j', module: 'log4j-api')
             .exclude(group: 'org.apache.logging.log4j', module: 'log4j-core')
@@ -46,10 +46,10 @@ dependencies {
             .exclude(group: 'org.apache.logging.log4j', module: 'log4j-core')
             .exclude(group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl')
 
-    compileOnly('net.objecthunter:exp4j:0.4.8')
+    implementation('net.objecthunter:exp4j:0.4.8')
     shadow('net.objecthunter:exp4j:0.4.8')
 
-    compileOnly('com.google.re2j:re2j:1.7')
+    implementation('com.google.re2j:re2j:1.7')
     shadow('com.google.re2j:re2j:1.7')
 }
 
