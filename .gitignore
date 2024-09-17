@@ -53,3 +53,4 @@ publish.gradle
 *publish.gradle
 /.github/
 /target/
+/.fastRequest/
