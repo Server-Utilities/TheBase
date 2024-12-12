@@ -3,8 +3,6 @@ package tv.quaint.async;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.swing.*;
-import java.awt.event.ActionListener;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -14,29 +12,27 @@ import java.util.function.Supplier;
 
 public class AsyncUtils {
     @Getter @Setter
-    private static Timer taskTimer;
+    private static TaskThread taskThread;
 
     @Getter @Setter
     private static AtomicLong currentTaskId = new AtomicLong(0);
 
-    public static Timer getTimer() {
-        if (taskTimer == null) {
-            taskTimer = buildTaskTimer();
+    public static TaskThread getTimer() {
+        if (taskThread != null) {
+            taskThread.stopTask();
         }
 
-        return taskTimer;
+        taskThread = createNewTimer();
+        taskThread.startTask();
+
+        return taskThread;
     }
 
-    public static Timer buildTimer(long delayedMilliseconds, ActionListener actionListener) {
-        return new Timer((int) delayedMilliseconds, actionListener);
-    }
+    public static TaskThread createNewTimer() {
+        TaskThread thread = new TaskThread();
+        thread.updateTickingFrequency(50);
 
-    public static Timer buildTimer(long delayedMilliseconds, Runnable runnable) {
-        return buildTimer(delayedMilliseconds, e -> runnable.run());
-    }
-
-    public static Timer buildTaskTimer() {
-        return buildTimer(getMillisInATick(), AsyncUtils::tickTasks); // 1 MC tick of delay
+        return thread;
     }
 
     public static void init() {
