@@ -36,7 +36,7 @@ public class AsyncUtils {
     }
 
     public static void init() {
-        getTimer().start();
+        getTimer();
 
         getCurrentTaskId().set(0);
     }
