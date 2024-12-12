@@ -43,9 +43,10 @@ public class SyncTask implements TaskLike<SyncTask> {
     }
 
     public CompletableFuture<Void> runThreaded() {
-        return CompletableFuture.supplyAsync(() -> {
-            getConsumer().accept(this);
-            return null;
-        });
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        getConsumer().accept(this);
+        future.complete(null);
+
+        return future;
     }
 }
