@@ -17,15 +17,13 @@ public class AsyncUtils {
     @Getter @Setter
     private static AtomicLong currentTaskId = new AtomicLong(0);
 
-    public static TaskThread getTimer() {
+    public static void restartTicker() {
         if (taskThread != null) {
             taskThread.stopTask();
         }
 
         taskThread = createNewTimer();
         taskThread.startTask();
-
-        return taskThread;
     }
 
     public static TaskThread createNewTimer() {
@@ -36,7 +34,7 @@ public class AsyncUtils {
     }
 
     public static void init() {
-        getTimer();
+        restartTicker();
 
         getCurrentTaskId().set(0);
     }

@@ -49,23 +49,30 @@ public class TaskThread extends Thread {
     public static Runnable getRunTask() {
         return () -> {
             try {
-                if (! running.get()) {
-                    return;
-                }
-
-                if (lastTick.get() + tickingFrequency.get() > System.currentTimeMillis()) {
+                while (true) {
                     try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        System.out.println("An error occurred while sleeping the task thread: " + e.getMessage());
-                        e.printStackTrace();
+                        if (! running.get()) {
+                            return;
+                        }
+
+                        if (lastTick.get() + tickingFrequency.get() > System.currentTimeMillis()) {
+                            try {
+                                Thread.sleep(50);
+                            } catch (InterruptedException e) {
+                                System.out.println("An error occurred while sleeping the task thread: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        }
+
+                        AsyncUtils.tickTasks();
+                        lastTick.set(System.currentTimeMillis());
+                    } catch (Throwable t) {
+                        System.out.println("An error occurred while executing a task: " + t.getMessage());
+                        t.printStackTrace();
                     }
                 }
-
-                AsyncUtils.tickTasks();
-                lastTick.set(System.currentTimeMillis());
             } catch (Throwable t) {
-                System.out.println("An error occurred while executing a task: " + t.getMessage());
+                System.out.println("An error occurred while executing the task thread: " + t.getMessage());
                 t.printStackTrace();
             }
         };
