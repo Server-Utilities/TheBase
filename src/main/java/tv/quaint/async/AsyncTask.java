@@ -72,32 +72,36 @@ public class AsyncTask implements TaskLike<AsyncTask> {
         return -1;
     }
 
-    public void executeAsync() {
-        CompletableFuture.runAsync(this::execute);
+    public CompletableFuture<Void> executeAsync() {
+        return AsyncUtils.executeAsync(this::execute);
     }
 
-    public void tick(boolean runAsync) {
+    public CompletableFuture<Void> tick(boolean runAsync) {
         ticksLived ++;
         if (currentDelay > 0) {
             currentDelay --;
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
-        doExecute(runAsync);
+        CompletableFuture<Void> future = doExecute(runAsync);
 
         if (isCompleted()) {
             remove();
         }
+
+        return future;
     }
 
-    public void doExecute(boolean runAsync) {
+    public CompletableFuture<Void> doExecute(boolean runAsync) {
         timesRan ++;
         currentDelay = period;
 
         if (runAsync) {
-            executeAsync();
+            return executeAsync();
         } else {
             execute();
+
+            return CompletableFuture.completedFuture(null);
         }
     }
 
@@ -109,8 +113,8 @@ public class AsyncTask implements TaskLike<AsyncTask> {
         AsyncUtils.removeTask(this);
     }
 
-    public void tick() {
-        tick(true);
+    public CompletableFuture<Void> tick() {
+        return tick(true);
     }
 
     public void execute() {
