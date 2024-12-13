@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -20,6 +21,8 @@ public class AsyncTask implements TaskLike<AsyncTask> {
 
     private int timesRan;
 
+    private Timer timer;
+
     public AsyncTask(long id, Consumer<AsyncTask> consumer, long delay, long period) {
         this.id = id;
 
@@ -30,6 +33,37 @@ public class AsyncTask implements TaskLike<AsyncTask> {
 
         this.ticksLived = 0;
         this.timesRan = 0;
+
+        this.timer = createTimer();
+    }
+
+    public Timer createTimer() {
+        return new Timer(50, e -> {
+            try {
+                tick();
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    public void start() {
+        timer.start();
+    }
+
+    public void stop() {
+        timer.stop();
+    }
+
+    public void reset() {
+        ticksLived = 0;
+        timesRan = 0;
+    }
+
+    public void restart() {
+        stop();
+        reset();
+        start();
     }
 
     public AsyncTask(Consumer<AsyncTask> consumer, long delay, long period) {
@@ -106,10 +140,12 @@ public class AsyncTask implements TaskLike<AsyncTask> {
     }
 
     public long queue() {
+        start();
         return AsyncUtils.queueTask(this);
     }
 
     public void remove() {
+        stop();
         AsyncUtils.removeTask(this);
     }
 

@@ -13,34 +13,35 @@ import java.util.function.Supplier;
 
 public class AsyncUtils {
     @Getter @Setter
-    private static Timer taskThread;
-
-    @Getter @Setter
     private static AtomicLong currentTaskId = new AtomicLong(0);
 
-    public static void restartTicker() {
-        if (taskThread != null) {
-            taskThread.stop();
-        }
-
-        taskThread = createNewTimer();
-        taskThread.start();
-    }
-
-    public static Timer createNewTimer() {
-        return new Timer(50, e -> {
-            try {
-                tickTasks();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-    }
+//    @Getter @Setter
+//    private static Timer taskThread;
+//
+//
+//    public static void restartTicker() {
+//        if (taskThread != null) {
+//            taskThread.stop();
+//        }
+//
+//        taskThread = createNewTimer();
+//        taskThread.start();
+//    }
+//
+//    public static Timer createNewTimer() {
+//        return new Timer(50, e -> {
+//            try {
+//                tickTasks();
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        });
+//    }
 
     public static void init() {
-        restartTicker();
-
-        getCurrentTaskId().set(0);
+//        restartTicker();
+//
+//        getCurrentTaskId().set(0);
     }
 
     @Getter @Setter
