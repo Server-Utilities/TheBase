@@ -15,8 +15,6 @@ public class TaskThread extends Thread {
     public static AtomicBoolean running = new AtomicBoolean(true);
     @Getter @Setter
     public static AtomicLong tickingFrequency = new AtomicLong(50);
-    @Getter @Setter
-    private static AtomicLong currentTicks = new AtomicLong(0);
 
     public TaskThread() {
         super(getRunTask());
@@ -69,17 +67,7 @@ public class TaskThread extends Thread {
                     }
 
                     try {
-                        while (currentTicks.get() <= getTickingFrequency().get()) {
-                            try {
-                                currentTicks.incrementAndGet();
-                                Thread.onSpinWait();
-                            } catch (Throwable t) {
-                                System.out.println("An error occurred while spinning the task thread: " + t.getMessage());
-                                t.printStackTrace();
-                            }
-                        }
-
-                        currentTicks.set(0);
+                        Thread.sleep(tickingFrequency.get());
                     } catch (Throwable t) {
                         System.out.println("An error occurred while sleeping the task thread: " + t.getMessage());
                         t.printStackTrace();
