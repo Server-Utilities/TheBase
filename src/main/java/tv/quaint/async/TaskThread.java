@@ -15,6 +15,8 @@ public class TaskThread extends Thread {
     public static AtomicBoolean running = new AtomicBoolean(true);
     @Getter @Setter
     public static AtomicLong tickingFrequency = new AtomicLong(50);
+    @Getter @Setter
+    private static AtomicLong currentTicks = new AtomicLong(0);
 
     public TaskThread() {
         super(getRunTask());
@@ -59,7 +61,29 @@ public class TaskThread extends Thread {
                 while (true) {
                     if (! run.get()) return;
 
-                    tick();
+                    try {
+                        tick();
+                    } catch (Throwable t) {
+                        System.out.println("An error occurred while executing the task thread: " + t.getMessage());
+                        t.printStackTrace();
+                    }
+
+                    try {
+                        while (currentTicks.get() <= getTickingFrequency().get()) {
+                            try {
+                                currentTicks.incrementAndGet();
+                                Thread.onSpinWait();
+                            } catch (Throwable t) {
+                                System.out.println("An error occurred while spinning the task thread: " + t.getMessage());
+                                t.printStackTrace();
+                            }
+                        }
+
+                        currentTicks.set(0);
+                    } catch (Throwable t) {
+                        System.out.println("An error occurred while sleeping the task thread: " + t.getMessage());
+                        t.printStackTrace();
+                    }
                 }
             } catch (Throwable t) {
                 System.out.println("An error occurred while executing the task thread: " + t.getMessage());
@@ -72,15 +96,6 @@ public class TaskThread extends Thread {
         try {
             if (! running.get()) {
                 return;
-            }
-
-            if (lastTick.get() + tickingFrequency.get() > System.currentTimeMillis()) {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    System.out.println("An error occurred while sleeping the task thread: " + e.getMessage());
-                    e.printStackTrace();
-                }
             }
 
             AsyncUtils.tickTasks();
