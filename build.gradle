@@ -5,13 +5,8 @@ plugins {
     id 'maven-publish' // for jitpack.io
 }
 
-String group = System.getenv("GROUP") ?: properties["group"] ?: "com.github.server-utilities"
-String commitHash = "";
-
-if (System.getenv("JITPACK") != "true") {
-    rootProject.group = group
-    rootProject.version = properties["version"] + "." + commitHash
-}
+group = 'com.github.server-utilities'
+version = '1.0.0'
 
 repositories {
     mavenCentral()
@@ -74,10 +69,6 @@ shadowJar {
     archiveFileName = project.name + '-' + project.version + '.jar'
 }
 
-artifacts {
-    archives shadowJar
-}
-
 tasks.register('deploy', Copy) {
     // Define the deployment directory
     def deployDir = file(System.getenv("DEPLOY_DIR") ?: "$rootDir/deploy")
@@ -89,28 +80,29 @@ tasks.register('deploy', Copy) {
         println "Generated JAR file: ${shadowJar.archiveFile}"
     }
 
-    // Copy the generated jar(s) to the deploy directory
+    // Copy the shadowJar output
     from shadowJar.archiveFile
     into deployDir
 }
 
-// Ensure that the copyToDeployDir task runs after the shadowJar task
+// Ensure that the deploy task runs after the shadowJar task
 shadowJar.finalizedBy(deploy)
 
 tasks.named('deploy').configure {
-    dependsOn shadowJar
-    dependsOn jar
+    dependsOn 'shadowJar', 'sourcesJar', 'javadocJar', 'jar'
 }
 
-tasks.register('getGitCommitHash') {
-    doLast {
-        def ch = 'git rev-parse --short HEAD'.execute().text.trim()
-        commitHash = ch
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
     }
 }
 
-tasks.named("build").configure {
-    dependsOn getGitCommitHash
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 wrapper {
