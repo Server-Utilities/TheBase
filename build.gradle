@@ -5,11 +5,13 @@ plugins {
     id 'maven-publish' // for jitpack.io
 }
 
-String group = System.getenv("GROUP") ?: properties["group"]
+String group = System.getenv("GROUP") ?: properties["group"] ?: "com.github.server-utilities"
 String commitHash = "";
 
-rootProject.group = group
-rootProject.version = properties["version"] + "." + commitHash
+if (System.getenv("JITPACK") != "true") {
+    rootProject.group = group
+    rootProject.version = properties["version"] + "." + commitHash
+}
 
 repositories {
     mavenCentral()
