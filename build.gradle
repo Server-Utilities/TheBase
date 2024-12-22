@@ -95,6 +95,6 @@ tasks.named('copyToDeployDir').configure {
 }
 
 wrapper {
-    gradleVersion = '8.6'
+    gradleVersion = '8.9'
     distributionType = Wrapper.DistributionType.BIN
 }

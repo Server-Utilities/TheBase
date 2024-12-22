@@ -54,3 +54,4 @@ publish.gradle
 /.github/
 /target/
 /.fastRequest/
+/deploy/
