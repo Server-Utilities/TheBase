@@ -1,5 +1,0 @@
-String artifact = System.getenv('ARTIFACT') ?: properties['name'] ?: rootProject.name
-
-if (System.getenv("JITPACK") != "true") {
-    rootProject.name = artifact
-}
