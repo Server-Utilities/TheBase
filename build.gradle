@@ -5,9 +5,6 @@ plugins {
     id 'maven-publish' // for jitpack.io
 }
 
-group = 'com.github.server-utilities'
-version = '1.0.0'
-
 repositories {
     mavenCentral()
     mavenLocal()
