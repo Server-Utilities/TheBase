@@ -5,11 +5,11 @@ plugins {
     id 'maven-publish' // for jitpack.io
 }
 
-String group = System.getenv('GROUP') ?: properties['group']
-String version = System.getenv('VERSION') ?: properties['version']
+String group = System.getenv("GROUP") ?: properties["group"]
+String commitHash = "";
 
 rootProject.group = group
-rootProject.version = version
+rootProject.version = properties["version"] + "." + commitHash
 
 repositories {
     mavenCentral()
@@ -98,6 +98,17 @@ shadowJar.finalizedBy(deploy)
 tasks.named('deploy').configure {
     dependsOn shadowJar
     dependsOn jar
+}
+
+tasks.register('getGitCommitHash') {
+    doLast {
+        def ch = 'git rev-parse --short HEAD'.execute().text.trim()
+        commitHash = ch
+    }
+}
+
+tasks.named("build").configure {
+    dependsOn getGitCommitHash
 }
 
 wrapper {
