@@ -5,6 +5,12 @@ plugins {
     id 'maven-publish' // for jitpack.io
 }
 
+String group = System.getenv('GROUP') ?: properties['group']
+String version = System.getenv('VERSION') ?: properties['version']
+
+rootProject.group = group
+rootProject.version = version
+
 repositories {
     mavenCentral()
     mavenLocal()
@@ -70,7 +76,7 @@ artifacts {
     archives shadowJar
 }
 
-tasks.register('copyToDeployDir', Copy) {
+tasks.register('deploy', Copy) {
     // Define the deployment directory
     def deployDir = file(System.getenv("DEPLOY_DIR") ?: "$rootDir/deploy")
 
@@ -87,9 +93,9 @@ tasks.register('copyToDeployDir', Copy) {
 }
 
 // Ensure that the copyToDeployDir task runs after the shadowJar task
-shadowJar.finalizedBy(copyToDeployDir)
+shadowJar.finalizedBy(deploy)
 
-tasks.named('copyToDeployDir').configure {
+tasks.named('deploy').configure {
     dependsOn shadowJar
     dependsOn jar
 }

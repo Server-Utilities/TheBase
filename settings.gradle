@@ -1,1 +1,3 @@
-rootProject.name = properties['name']
+String artifact = System.getenv('ARTIFACT') ?: properties['name']
+
+rootProject.name = artifact
