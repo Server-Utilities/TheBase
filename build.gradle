@@ -8,8 +8,10 @@ plugins {
 String group = System.getenv("GROUP") ?: properties["group"]
 String commitHash = "";
 
-rootProject.group = group
-rootProject.version = properties["version"] + "." + commitHash
+if (System.getenv("JITPACK") != "true") {
+    rootProject.group = group
+    rootProject.version = properties["version"] + "." + commitHash
+}
 
 repositories {
     mavenCentral()
