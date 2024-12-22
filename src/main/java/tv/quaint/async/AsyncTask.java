@@ -48,10 +48,14 @@ public class AsyncTask implements TaskLike<AsyncTask> {
     }
 
     public void start() {
+        if (timer.isRunning()) return;
+
         timer.start();
     }
 
     public void stop() {
+        if (! timer.isRunning()) return;
+
         timer.stop();
     }
 
