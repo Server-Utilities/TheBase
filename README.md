@@ -1,3 +1,5 @@
+[![https://jitci.com/gh/Server-Utilities/TheBase](https://jitci.com/gh/Server-Utilities/TheBase/svg)](https://jitci.com/gh/Server-Utilities/TheBase)
+
 # TheBase
 A library simply for ease of use and efficiency of code making.
 
