@@ -1,8 +1,8 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.gradleup.shadow' version '8.3.6'
     id 'io.freefair.lombok' version '8.10.2'
-    id 'maven-publish' // for jitpack.io
+    id 'maven-publish'
 }
 
 group = 'com.github.server-utilities'
@@ -11,82 +11,69 @@ version = '1.0.0'
 repositories {
     mavenCentral()
     mavenLocal()
-
-    // JitPack
     maven { url 'https://jitpack.io' }
 }
 
+configurations {
+    implementation {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'org.apache.logging.log4j'
+    }
+    shadow {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'org.apache.logging.log4j'
+    }
+}
+
 dependencies {
-    implementation('com.github.simplix-softworks:simplixstorage:3.2.7')
-    shadow('com.github.simplix-softworks:simplixstorage:3.2.7')
-
-    implementation('mysql:mysql-connector-java:8.0.33')
-    shadow('mysql:mysql-connector-java:8.0.33')
-
-    implementation('org.xerial:sqlite-jdbc:3.46.1.0')
-            .exclude(group: 'org.slf4j', module: 'slf4j-api')
-    shadow('org.xerial:sqlite-jdbc:3.46.1.0')
-            .exclude(group: 'org.slf4j', module: 'slf4j-api')
-
-    implementation('com.zaxxer:HikariCP:5.1.0')
-            .exclude(group: 'org.slf4j', module: 'slf4j-api')
-            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-api')
-            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-core')
-            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl')
-    shadow('com.zaxxer:HikariCP:5.1.0')
-            .exclude(group: 'org.slf4j', module: 'slf4j-api')
-            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-api')
-            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-core')
-            .exclude(group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl')
-
-    implementation('net.objecthunter:exp4j:0.4.8')
-    shadow('net.objecthunter:exp4j:0.4.8')
-
-    implementation('com.google.re2j:re2j:1.7')
-    shadow('com.google.re2j:re2j:1.7')
+    implementation "me.nobeld:SimplixStorage:3.3.0-beta.3"
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation 'org.xerial:sqlite-jdbc:3.46.1.0'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'net.objecthunter:exp4j:0.4.8'
+    implementation 'com.google.re2j:re2j:1.7'
 }
 
 shadowJar {
-    relocate('de.leonhard', 'tv.quaint.thebase.lib.leonhard')
-    relocate('com.mysql', 'tv.quaint.thebase.lib.mysql')
-    relocate('com.zaxxer.hikari', 'tv.quaint.thebase.lib.hikari')
-    relocate('net.objecthunter.exp4j', 'tv.quaint.thebase.lib.exp4j')
-    relocate('com.google.re2j', 'tv.quaint.thebase.lib.re2j')
-    relocate('com.google.gson', 'tv.quaint.thebase.lib.google.gson')
-    relocate('com.google.guava', 'tv.quaint.thebase.lib.google.guava')
-    relocate('org.sqlite', 'tv.quaint.thebase.lib.sqlite')
-    relocate('org.xerial', 'tv.quaint.thebase.lib.xerial')
-    relocate('org.apache.commons', 'tv.quaint.thebase.lib.apache.commons')
-    relocate('org.yaml', 'tv.quaint.thebase.lib.yaml')
-    relocate('org.jetbrains', 'tv.quaint.thebase.lib.jetbrains')
-    relocate('org.bstats', 'tv.quaint.thebase.lib.bstats')
-    relocate('lombok', 'tv.quaint.thebase.lib.lombok')
+    configurations = [project.configurations.implementation, project.configurations.shadow]
+    Map<String, String> relocations = [
+            'de.leonhard': 'gg.drak.thebase.lib.leonhard',
+            'com.mysql': 'gg.drak.thebase.lib.mysql',
+            'com.zaxxer.hikari': 'gg.drak.thebase.lib.hikari',
+            'net.objecthunter.exp4j': 'gg.drak.thebase.lib.exp4j',
+            'com.google.re2j': 'gg.drak.thebase.lib.re2j',
+            'com.google.gson': 'gg.drak.thebase.lib.google.gson',
+            'com.google.guava': 'gg.drak.thebase.lib.google.guava',
+            'org.sqlite': 'gg.drak.thebase.lib.sqlite',
+            'org.xerial': 'gg.drak.thebase.lib.xerial',
+            'org.apache.commons': 'gg.drak.thebase.lib.apache.commons',
+            'org.yaml': 'gg.drak.thebase.lib.yaml',
+            'org.bstats': 'gg.drak.thebase.lib.bstats'
+    ]
+    relocations.each { src, dest -> relocate src, dest }
 
-    exclude('com.google.common.*')
-    exclude('org.apache.logging.log4j.*')
-    exclude('org.slf4j.*')
+    exclude 'com/google/common/**'
+    exclude 'org/apache/logging/log4j/**'
+    exclude 'org/slf4j/**'
+    exclude 'META-INF/**'
+    exclude '**/LICENSE'
+    exclude '**/README.md'
+    exclude '**/docs/**'
 
-    archiveFileName = project.name + '-' + project.version + '.jar'
+    archiveFileName = "${project.name}-${project.version}.jar"
 }
 
 tasks.register('deploy', Copy) {
-    // Define the deployment directory
-    def deployDir = file(System.getenv("DEPLOY_DIR") ?: "$rootDir/deploy")
+    def deployDir = file(System.getenv('DEPLOY_DIR') ?: "$rootDir/deploy")
+    from shadowJar.archiveFile
+    into deployDir
 
-    // Ensure the deployment directory exists
     doFirst {
         println "Deploying to: $deployDir"
         deployDir.mkdirs()
-        println "Generated JAR file: ${shadowJar.archiveFile}"
+        println "Generated JAR file: ${shadowJar.archiveFile.get()}"
     }
-
-    // Copy the shadowJar output
-    from shadowJar.archiveFile
-    into deployDir
 }
-
-// Ensure that the deploy task runs after the shadowJar task
-shadowJar.finalizedBy(deploy)
 
 tasks.named('deploy').configure {
     dependsOn 'shadowJar', 'sourcesJar', 'javadocJar', 'jar'
@@ -109,5 +96,3 @@ wrapper {
     gradleVersion = '8.9'
     distributionType = Wrapper.DistributionType.BIN
 }
-
-// comment for testing
